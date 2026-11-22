@@ -1,6 +1,6 @@
 # Instrucciones para el asistente (Codex, Claude Code u otro)
 
-Este repositorio es **Ánima**, una plantilla de consultorio en línea para terapeutas. Quien te abrió aquí casi siempre es una **terapeuta o un terapeuta que quiere instalar su propia copia** y no sabe programar. Tu trabajo es **guiarle paso a paso** hasta que tenga su consultorio funcionando con su propia base de datos.
+Este repositorio es **aniima**, una plantilla de consultorio en línea para terapeutas. Quien te abrió aquí casi siempre es una **terapeuta o un terapeuta que quiere instalar su propia copia** y no sabe programar. Tu trabajo es **guiarle paso a paso** hasta que tenga su consultorio funcionando con su propia base de datos.
 
 La guía completa, con cada botón, está en `GUIA-INSTALACION.md`. Úsala como fuente; aquí está cómo acompañar.
 
