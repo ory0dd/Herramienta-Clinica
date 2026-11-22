@@ -10,7 +10,12 @@ import {
 
 export const MENSAJE_PREGUNTAR = '¡Hola! Espero que estés muy bien. ¿Qué día y hora te acomodan para tu siguiente sesión? 🙂';
 export const nuevoId = () => `l-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-const soloDigitos = (t) => (t || '').replace(/\D/g, '');
+// Número para WhatsApp: solo dígitos y con lada de país (10 dígitos se toman como México, 52)
+export const numeroWhatsApp = (t) => {
+  const d = (t || '').replace(/\D/g, '');
+  if (d.length === 10) return `52${d}`;
+  return d.length >= 11 ? d : '';
+};
 
 export function useAgenda() {
   const [lista, setListaState] = useState(getLista);
@@ -51,14 +56,18 @@ export function useAgenda() {
     navigator.clipboard?.writeText(texto).then(() => { setCopiado(id); setTimeout(() => setCopiado(''), 1500); }).catch(() => {});
   };
 
-  // Aviso: abre WhatsApp con el mensaje listo; sin teléfono, lo copia. Queda marcado como avisado.
+  const mensajeDe = (f) => (f.preguntar || !f.sesion ? MENSAJE_PREGUNTAR : rellenarMensaje(ajustes.mensaje, f.sesion));
+
+  // Aviso: abre WhatsApp con el mensaje ya escrito, listo para enviar. Queda marcado como avisado.
+  // Devuelve false si la persona no tiene número (la pantalla lleva a registrarlo).
   const avisar = (f) => {
-    const msg = f.preguntar || !f.sesion ? MENSAJE_PREGUNTAR : rellenarMensaje(ajustes.mensaje, f.sesion);
-    const tel = soloDigitos(f.c.telefono);
-    if (tel) window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-    else copiar(msg, f.c.id);
+    const tel = numeroWhatsApp(f.c.telefono);
+    if (!tel) return false;
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(mensajeDe(f))}`, '_blank', 'noopener');
     if (f.sesion && !f.preguntar) actualizar(f.c.id, acciones.avisado(f.c, f.sesion));
+    return true;
   };
+  const copiarAviso = (f) => copiar(mensajeDe(f), f.c.id);
 
   const guardarPersona = (datos) => {
     const limpio = { ...datos, alias: datos.alias.trim(), frecuencia_dias: parseInt(datos.frecuencia_dias, 10) || 0 };
@@ -75,6 +84,6 @@ export function useAgenda() {
 
   return {
     lista, pagos, ajustes, ahora, vista, precio, copiado,
-    setLista, setPagos, setAjustes, persona, filaDe, pagoDe, actualizar, ciclarPago, avisar, copiar, guardarPersona, borrarPersona,
+    setLista, setPagos, setAjustes, persona, filaDe, pagoDe, actualizar, ciclarPago, avisar, copiarAviso, copiar, guardarPersona, borrarPersona,
   };
 }

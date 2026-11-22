@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Check, Wallet, Send, Copy, Plus, ChevronLeft, ChevronRight, CalendarClock, CalendarX, Pencil, ShieldCheck, Sparkles, ArrowUp } from 'lucide-react';
+import { Check, Wallet, Send, Copy, Plus, MessageCircle, CalendarSync, RefreshCw, Unplug, ChevronLeft, ChevronRight, CalendarClock, CalendarX, Pencil, ShieldCheck, Sparkles, ArrowUp } from 'lucide-react';
 import { preguntarIA, estadoIA, claveGuardada } from '../../utils/ia';
-import { nuevoId } from './useAgenda';
+import { nuevoId, numeroWhatsApp } from './useAgenda';
 import {
   sesionesDelMes, horaCorta, nombreDia, fmtFecha, fmtHora, parseFechaHora, addDias, proximasSesiones, acciones,
   DIAS, MESES, MENSAJE_BASE, pesos, fmtFechaHora,
 } from '../../utils/miLista';
 import { useRuta, vt } from '../rutas';
+import { useAviso } from '../aviso';
+import { CLIENT_ID, sincronizar, desconectar, sesionesParaCalendario } from '../../utils/calendario';
+import { getGoogle } from '../../utils/miLista';
 import { Pantalla, Subtabs, Seccion, FilaEnlace, Vacio, Campo, Confirmar, inp, area, btnPri, btnSec, btnTxt } from '../ui';
 import { useAgenda } from './useAgenda';
 
@@ -46,7 +49,7 @@ function Estados({ f, pago }) {
       {f.avisado && !f.confirmado && <Chip punto="bg-zinc-500">ya le escribiste</Chip>}
       {pago && <Chip punto={pago.estado === 'pagado' ? 'bg-emerald-400' : 'bg-rose-400'}>{pago.estado === 'pagado' ? 'pagó' : 'debe'}</Chip>}
       {f.c.solo_esta_vez && f.c.solo_esta_vez === f.clave && <Chip punto="bg-sky-400">solo esta vez</Chip>}
-      {!f.c.telefono && <span className="text-[12px] text-zinc-600">sin teléfono</span>}
+      {!numeroWhatsApp(f.c.telefono) && <span className="text-[12px] text-zinc-600">sin WhatsApp</span>}
     </span>
   );
 }
@@ -54,7 +57,10 @@ function Estados({ f, pago }) {
 /** Una sesión en una lista: se toca para abrir a la persona; los botones hacen lo rápido. */
 function FilaSesion({ f, ag, conDia, destacarAviso, nombreVT, onAbrir }) {
   const pago = f.clave ? ag.pagoDe(f) : null;
-  const copiado = ag.copiado === f.c.id;
+  const { navegar } = useRuta();
+  const tieneWhats = !!numeroWhatsApp(f.c.telefono);
+  // Con número: abre WhatsApp con el aviso escrito. Sin número: lleva a registrarlo.
+  const avisar = () => { if (!ag.avisar(f)) navegar(['agenda', 'personas', f.c.id, 'editar']); };
   return (
     <div className="px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
       <button type="button" onClick={onAbrir} className="flex-1 min-w-[150px] flex items-start gap-3 text-left group">
@@ -77,13 +83,13 @@ function FilaSesion({ f, ag, conDia, destacarAviso, nombreVT, onAbrir }) {
             activo={!!pago} tono={pago?.estado === 'pendiente' ? 'rojo' : 'verde'} onClick={() => ag.ciclarPago(f)}><Wallet size={16} /></Icono>
         )}
         {destacarAviso ? (
-          <button type="button" onClick={() => ag.avisar(f)}
-            className="ml-1 h-9 px-3 rounded-xl text-[13px] font-semibold bg-emerald-400 hover:bg-emerald-300 text-emerald-950 inline-flex items-center gap-1.5 transition-colors">
-            {copiado ? <><Check size={14} /> Copiado</> : f.c.telefono ? <><Send size={14} /> Avisar</> : <><Copy size={14} /> Copiar aviso</>}
+          <button type="button" onClick={avisar}
+            className={`ml-1 h-9 px-3.5 rounded-full text-[13px] font-semibold inline-flex items-center gap-1.5 transition active:scale-[.97] ${tieneWhats ? 'bg-emerald-400 hover:bg-emerald-300 text-emerald-950' : 'bg-raised ring-1 ring-line text-zinc-300 hover:text-ink'}`}>
+            {tieneWhats ? <><MessageCircle size={14} /> Avisar</> : <><Plus size={14} /> WhatsApp</>}
           </button>
         ) : (
-          <Icono title={f.c.telefono ? 'Mandar aviso por WhatsApp' : 'Copiar el mensaje de aviso'} onClick={() => ag.avisar(f)} activo={copiado} tono="verde">
-            {copiado ? <Check size={16} /> : f.c.telefono ? <Send size={16} /> : <Copy size={16} />}
+          <Icono title={tieneWhats ? 'Mandar aviso por WhatsApp' : 'Agregar su WhatsApp para avisarle'} onClick={avisar} tono="verde">
+            {tieneWhats ? <MessageCircle size={16} /> : <Plus size={16} />}
           </Icono>
         )}
       </div>
@@ -102,6 +108,7 @@ export default function Agenda({ sub = 'hoy', param, extra }) {
   if (sub === 'personas' && param) return <PersonaDetalle ag={ag} id={param} />;
   if (sub === 'calendario' && param) return <DiaAgenda ag={ag} fecha={param} />;
   if (sub === 'asistente') return <AsistenteAgenda ag={ag} />;
+  if (sub === 'google') return <GoogleCalendario ag={ag} />;
 
   const tabs = [
     { id: 'hoy', label: 'Hoy' },
@@ -212,7 +219,18 @@ function VistaCalendario({ ag }) {
   for (let i = 0; i < (base.getDay() + 6) % 7; i++) celdas.push(null);
   for (let d = 1; d <= new Date(anio, mes + 1, 0).getDate(); d++) celdas.push(new Date(anio, mes, d));
 
+  const google = getGoogle();
   return (
+    <div className="space-y-4">
+    <button type="button" onClick={() => navegar(['agenda', 'google'])}
+      className="w-full rounded-3xl border border-line bg-surface shadow-suave px-5 py-4 flex items-center gap-3.5 text-left hover:bg-white/[0.025] transition-colors">
+      <span className="w-10 h-10 shrink-0 rounded-2xl bg-raised ring-1 ring-line grid place-items-center text-emerald-300"><CalendarSync size={18} /></span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[15px] font-medium text-ink">Google Calendar</span>
+        <span className="block text-[13px] text-zinc-500 truncate">{google.calendario ? `Conectado${google.ultima ? ` · última vez ${new Date(google.ultima).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}` : ''}` : 'Ve tus sesiones en tu calendario'}</span>
+      </span>
+      <ChevronRight size={17} className="text-zinc-600 shrink-0" />
+    </button>
     <Seccion
       titulo={`${mayus(MESES[mes])} ${anio}`}
       accion={(
@@ -254,6 +272,7 @@ function VistaCalendario({ ag }) {
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 px-1">{ESTADOS.map((e) => <Chip key={e.id} punto={e.punto}>{e.label}</Chip>)}</div>
       </div>
     </Seccion>
+    </div>
   );
 }
 
@@ -421,8 +440,11 @@ function PersonaDetalle({ ag, id }) {
                   <Wallet size={16} /> {!pago ? 'Marcar pago' : pago.estado === 'pagado' ? 'Pagó' : 'Debe'}
                 </button>
               )}
-              <button type="button" onClick={() => ag.avisar(f)} className={btnSec}>
-                {ag.copiado === id ? <><Check size={16} /> Copiado</> : c.telefono ? <><Send size={16} /> Avisar por WhatsApp</> : <><Copy size={16} /> Copiar aviso</>}
+              {numeroWhatsApp(c.telefono)
+                ? <button type="button" onClick={() => ag.avisar(f)} className={btnPri}><MessageCircle size={16} /> Avisar por WhatsApp</button>
+                : <button type="button" onClick={() => navegar(['agenda', 'personas', id, 'editar'])} className={btnPri}><Plus size={16} /> Agregar WhatsApp</button>}
+              <button type="button" onClick={() => ag.copiarAviso(f)} className={btnSec}>
+                {ag.copiado === id ? <><Check size={16} /> Copiado</> : <><Copy size={16} /> Copiar mensaje</>}
               </button>
               <button type="button" onClick={() => setMover(mover ? null : { fecha: fmtFecha(f.sesion || ag.ahora), hora: f.sesion ? fmtHora(f.sesion) : '12:00' })} className={btnSec}>
                 <CalendarClock size={16} /> {f.preguntar ? 'Agendar' : 'Mover'}
@@ -464,7 +486,7 @@ function PersonaDetalle({ ag, id }) {
 
         <Seccion titulo="Datos">
           <dl className="divide-y divide-line text-[14px]">
-            {[['Tipo', f.preguntar ? 'Sin sesión fija' : 'Sesión fija'], ['Frecuencia', f.preguntar ? '—' : frecuencia], ['WhatsApp', c.telefono || 'Sin teléfono'], ['Estado', c.activo === false ? 'Inactiva' : 'Activa']].map(([k, v]) => (
+            {[['Tipo', f.preguntar ? 'Sin sesión fija' : 'Sesión fija'], ['Frecuencia', f.preguntar ? '—' : frecuencia], ['WhatsApp', c.telefono || 'Sin número'], ['Estado', c.activo === false ? 'Inactiva' : 'Activa']].map(([k, v]) => (
               <div key={k} className="px-4 py-3 flex justify-between gap-4"><dt className="text-zinc-500">{k}</dt><dd className="text-zinc-200 text-right">{v}</dd></div>
             ))}
           </dl>
@@ -499,7 +521,9 @@ function PersonaForm({ ag, id }) {
       <form onSubmit={guardar} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Campo etiqueta="Alias o código" ayuda="No uses el nombre completo."><input value={form.alias} onChange={(e) => setForm({ ...form, alias: e.target.value })} placeholder="C-06" className={inp} /></Campo>
-          <Campo etiqueta="WhatsApp (con lada de país)" ayuda="Opcional."><input value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} inputMode="tel" placeholder="52 81 0000 0000" className={inp} /></Campo>
+          <Campo etiqueta="WhatsApp" ayuda={form.telefono && !numeroWhatsApp(form.telefono) ? 'Revisa el número: 10 dígitos (México) o con lada de país.' : 'Para mandarle el aviso con un botón. 10 dígitos (México) o con lada de país.'}>
+            <input value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} inputMode="tel" autoComplete="off" autoFocus={!!existente && !numeroWhatsApp(existente.telefono)} placeholder="81 0000 0000" className={inp} />
+          </Campo>
           <Campo etiqueta="Tipo" className="sm:col-span-2">
             <div className="flex flex-wrap gap-2">
               {[['fijo', 'Sesión fija'], ['preguntar', 'Sin sesión fija (preguntar)']].map(([v, l]) => (
@@ -663,6 +687,65 @@ function aplicarCambios(cambios, ag) {
 }
 
 const SUGERENCIAS = ['¿A quién veo mañana?', '¿Quién me debe?', '¿Qué huecos tengo esta semana por la tarde?'];
+
+/** Conexión con Google Calendar: un calendario propio con las sesiones de las próximas cuatro semanas. */
+function GoogleCalendario({ ag }) {
+  const aviso = useAviso();
+  const [g, setG] = useState(getGoogle);
+  const [trabajando, setTrabajando] = useState(false);
+  const [error, setError] = useState('');
+  const cuantas = sesionesParaCalendario(ag.lista, ag.ahora).length;
+
+  const sinc = async () => {
+    setError('');
+    setTrabajando(true);
+    try {
+      const r = await sincronizar(ag.lista, ag.ahora);
+      setG(getGoogle());
+      aviso(r.puestas || r.quitadas ? `Listo: ${r.puestas} agregadas, ${r.quitadas} quitadas` : 'Tu calendario ya estaba al día');
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setTrabajando(false);
+    }
+  };
+
+  return (
+    <Pantalla atras={['agenda', 'calendario']} etiquetaAtras="Calendario" titulo="Google Calendar" ancho="max-w-xl">
+      <div className="space-y-5">
+        <Seccion>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <span className={`w-2 h-2 rounded-full ${g.calendario ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
+              <p className="text-[15px] text-ink">{g.calendario ? 'Conectado' : 'Sin conectar'}</p>
+              {g.ultima && <p className="text-[13px] text-zinc-500 ml-auto">{new Date(g.ultima).toLocaleString('es-MX', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</p>}
+            </div>
+            <p className="text-[14px] text-zinc-400 leading-relaxed">
+              Se crea un calendario aparte, <span className="text-ink">sesiones</span>, con tus {cuantas} sesiones de las próximas cuatro semanas. Cada evento lleva solo el alias (como C-01), sin nombres ni teléfonos.
+            </p>
+            {!CLIENT_ID ? (
+              <p className="rounded-2xl bg-amber-500/10 px-4 py-3 text-[13.5px] text-amber-200 leading-relaxed">
+                Falta un dato para conectar: el Client ID de Google (<code>VITE_GOOGLE_CLIENT_ID</code> en Railway). Los pasos están en la guía, en "Conectar Google Calendar".
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={sinc} disabled={trabajando} className={btnPri}>
+                  {g.calendario ? <RefreshCw size={16} className={trabajando ? 'animate-spin' : ''} /> : <CalendarSync size={16} />}
+                  {trabajando ? 'Sincronizando…' : g.calendario ? 'Sincronizar ahora' : 'Conectar con Google'}
+                </button>
+                {g.calendario && <button type="button" onClick={() => { desconectar(); setG({}); aviso('Desconectado'); }} className={btnSec}><Unplug size={16} /> Desconectar</button>}
+              </div>
+            )}
+            {error && <p className="rounded-2xl bg-rose-500/10 px-4 py-3 text-[13.5px] text-rose-200">{error}</p>}
+          </div>
+        </Seccion>
+        <p className="text-[12.5px] text-zinc-500 leading-relaxed px-1">
+          Cuando cambies algo en tu agenda, vuelve aquí y toca <span className="text-zinc-300">Sincronizar ahora</span>. La app solo puede ver y cambiar el calendario que ella creó, no tus otros calendarios.
+        </p>
+      </div>
+    </Pantalla>
+  );
+}
 
 function AsistenteAgenda({ ag }) {
   const [mensajes, setMensajes] = useState([]);

@@ -5,7 +5,10 @@ Plantilla de consultorio en línea para psicólogas, psicólogos y terapeutas. C
 ## Qué trae
 
 - **Pantalla de entrada:** cada quien elige su lado, **Clínico** o **Consultante**.
-- **Agenda:** sesiones de hoy, a quién toca avisar, calendario, pagos y personas. Incluye "Dile qué pasó": escribes lo que pasó y la agenda se actualiza sola.
+- **Agenda:** sesiones de hoy, a quién toca avisar, calendario, pagos y personas. Incluye:
+  - **Avisos por WhatsApp con un botón:** abre WhatsApp con el mensaje ya escrito.
+  - **Google Calendar:** tus sesiones aparecen en un calendario aparte.
+  - **"Dile qué pasó":** escribes lo que pasó y la agenda se actualiza sola.
 - **Consultantes:** expedientes con ficha, notas de evolución (también desde audio), pruebas e informes imprimibles.
 - **Entrevistas:** lo que tus consultantes llenan desde su celular, para convertirlo en expediente con un toque.
 - **Cuadernos:** un cuaderno por caso, con chat y memoria. Subes el audio de cada sesión, se transcribe y se resume, y de ahí sale la nota de evolución.

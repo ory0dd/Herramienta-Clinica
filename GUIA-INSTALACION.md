@@ -110,6 +110,18 @@ Esta línea es la que hace que solo tú puedas abrir el consultorio, aunque algu
 
 Puedes cambiar el código cuando quieras. Los consultantes que ya se registraron no lo necesitan otra vez.
 
+### Opcional: conectar Google Calendar
+
+Tus sesiones de las próximas cuatro semanas aparecen en un calendario aparte de tu Google Calendar. La app solo puede ver y cambiar ese calendario, no los tuyos, y los eventos llevan solo el alias.
+
+1. Entra a console.cloud.google.com y crea un proyecto (por ejemplo `aniima`).
+2. En **APIs y servicios → Biblioteca**, busca **Google Calendar API** y dale **Habilitar**.
+3. En **APIs y servicios → Pantalla de consentimiento de OAuth**, elige **Externo**, pon el nombre de tu app y tu correo. En **Usuarios de prueba**, agrega tu correo de Google.
+4. En **APIs y servicios → Credenciales → Crear credenciales → ID de cliente de OAuth**, elige **Aplicación web**. En **Orígenes de JavaScript autorizados**, agrega el link de tu consultorio (el de Railway, sin `/` al final) y, si pruebas en tu computadora, `http://localhost:3000`.
+5. Copia el **ID de cliente** (termina en `.apps.googleusercontent.com`). Es un dato público.
+6. En Railway agrega la variable `VITE_GOOGLE_CLIENT_ID` con ese ID y vuelve a dar **Deploy**.
+7. En tu consultorio entra a **Agenda → Calendario → Google Calendar → Conectar con Google**. Cuando cambies algo en tu agenda, toca **Sincronizar ahora**.
+
 ### Opcional: que tus consultantes entren con Google
 
 1. Sigue la guía de Supabase para Google: **Authentication** → **Sign In / Providers** → **Google**. Te pedirá crear un "OAuth client" en Google Cloud y pegar ahí su Client ID y Client Secret.
@@ -128,6 +140,8 @@ Puedes cambiar el código cuando quieras. Los consultantes que ya se registraron
 | El consultante ve "el código de invitación no es correcto" | Revisa el código en la pestaña Entrevistas y vuelve a mandárselo. |
 | Supabase dice que el correo de un consultante no es válido | Revisa que lo haya escrito bien. Si entró antes con nombre de usuario (sin correo), en Railway agrega la variable `VITE_DOMINIO_USUARIOS` con un dominio tuyo y vuelve a dar Deploy. |
 | "No se pudo subir tu audio" o "column metodo does not exist" | Vuelve a correr el esquema completo (paso 3). |
+| Google dice "Error 400: redirect_uri_mismatch" u "origin_mismatch" al conectar el calendario | En Google Cloud, revisa que el link de tu consultorio esté en **Orígenes de JavaScript autorizados**, exactamente igual y sin `/` al final. |
+| Google dice que la app no está verificada | Es normal mientras está en prueba: da **Continuar**. Solo pueden entrar los correos que agregaste como usuarios de prueba. |
 | "Tu terapeuta aún no activa el acceso con Google" | Haz el paso opcional de Google o quita la variable `VITE_ACCESO_GOOGLE`. |
 | El asistente dice "Sin conectar" | Revisa `CF_ACCOUNT_ID` y `CF_API_TOKEN` en Railway y vuelve a dar Deploy. |
 | El asistente pide iniciar sesión | Vuelve a entrar con tu candado (Ajustes → Cerrar sesión y entra de nuevo). |
@@ -146,7 +160,7 @@ Todo esto se cambia editando archivos de texto en tu repositorio de GitHub (bot�
 | Preguntas de la entrevista inicial | `src/data/entrevista.js` |
 | Marco teórico, formato de notas y acciones rápidas del asistente | `src/data/asistente.js`, o desde **Cuadernos → Directrices** |
 | Instrucciones para resumir sesiones y redactar notas | `src/data/cuaderno.js` |
-| Mensaje de aviso por WhatsApp | **Agenda → Personas → Mensaje de aviso** |
+| Mensaje de aviso por WhatsApp | **Agenda → Personas → Mensaje de aviso**. Para mandarlo con un botón, registra el WhatsApp de cada persona (10 dígitos en México). |
 
 El consentimiento incluido es una plantilla. Revísalo y adáptalo a tu encuadre antes de usarlo con consultantes.
 

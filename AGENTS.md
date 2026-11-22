@@ -64,8 +64,10 @@ Para comprobar: en **Cuadernos**, junto al nombre de un caso debe salir el punto
 ### 6. Invitar consultantes
 Paso 9 de la guía: en **Entrevistas** guardar un código de invitación y compartir el link. Que haga una prueba desde otro navegador o su celular, eligiendo **Consultante**.
 
-### 7. Google para consultantes (opcional)
-La sección opcional de Google en la guía, más la variable `VITE_ACCESO_GOOGLE=si` en Railway.
+### 7. Google (opcional)
+- **Google Calendar:** sección "Conectar Google Calendar" de la guía. El ID de cliente es público; puedes ayudarle a pegarlo en Railway como `VITE_GOOGLE_CLIENT_ID`. El origen autorizado debe ser exactamente su link de Railway.
+- **Consultantes con Google:** la sección de Google en la guía, más la variable `VITE_ACCESO_GOOGLE=si` en Railway.
+- **WhatsApp:** no necesita configuración. Que registre el número de cada persona en Agenda (10 dígitos en México) y el botón "Avisar" abre WhatsApp con el mensaje listo.
 
 ### 8. Personalizar
 Cuando todo funcione, pregúntale cómo se llama su consultorio y ponlo con la variable `VITE_NOMBRE_CONSULTORIO` en Railway (y en su `.env`). Después ofrece ajustar el consentimiento informado, la política de citas, la entrevista y los informes (tabla "Personaliza tu plantilla" en la guía). Recuérdale que el consentimiento es una plantilla y conviene revisarlo con su encuadre.

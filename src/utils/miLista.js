@@ -245,3 +245,6 @@ export const getPagos = () => leer('pagos', () => []);
 export const savePagos = (pagos) => escribir('pagos', pagos);
 export const getAjustes = () => leer('ajustes', () => ({ mensaje: MENSAJE_BASE, precio: '' }));
 export const saveAjustes = (a) => escribir('ajustes', a);
+// Conexión con Google Calendar: id del calendario creado por la app y última sincronización
+export const getGoogle = () => leer('google', () => ({}));
+export const saveGoogle = (g) => escribir('google', g);
