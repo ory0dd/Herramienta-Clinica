@@ -1,6 +1,7 @@
 import React from 'react';
 import { CalendarDays, ClipboardList, Users, BookOpen, Activity, Settings2, LogOut } from 'lucide-react';
 import { useRuta, vt } from './rutas';
+import { NOMBRE } from '../data/marca';
 
 // Cinco apartados, en el orden en que se usan durante el día. `inicio` es la pantalla al tocarlos.
 export const APARTADOS = [
@@ -32,7 +33,7 @@ function Marca() {
   return (
     <span className="flex items-center gap-2.5">
       <span className="font-display text-[26px] leading-none text-emerald-300" aria-hidden="true">Ψ</span>
-      <span className="text-[14px] font-semibold text-ink tracking-tight whitespace-nowrap">Oasis Clínico</span>
+      <span className="text-[14px] font-semibold text-ink tracking-tight whitespace-nowrap">{NOMBRE}</span>
     </span>
   );
 }

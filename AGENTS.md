@@ -68,7 +68,7 @@ Paso 9 de la guía: en **Entrevistas** guardar un código de invitación y compa
 La sección opcional de Google en la guía, más la variable `VITE_ACCESO_GOOGLE=si` en Railway.
 
 ### 8. Personalizar
-Cuando todo funcione, ofrece ajustar el consentimiento informado, la política de citas, la entrevista y los informes (tabla "Personaliza tu plantilla" en la guía). Recuérdale que el consentimiento es una plantilla y conviene revisarlo con su encuadre.
+Cuando todo funcione, pregúntale cómo se llama su consultorio y ponlo con la variable `VITE_NOMBRE_CONSULTORIO` en Railway (y en su `.env`). Después ofrece ajustar el consentimiento informado, la política de citas, la entrevista y los informes (tabla "Personaliza tu plantilla" en la guía). Recuérdale que el consentimiento es una plantilla y conviene revisarlo con su encuadre.
 Después de cada cambio: `npm run build` para comprobar, commit en español y `git push`. Railway publica solo.
 
 ## Traer mejoras de la plantilla

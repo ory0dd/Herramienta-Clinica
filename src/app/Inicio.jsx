@@ -1,20 +1,21 @@
 import React from 'react';
 import { UserRound, Stethoscope, ChevronRight } from 'lucide-react';
 import { elegirModo } from './modo';
+import { NOMBRE } from '../data/marca';
 
 const LADOS = [
   { id: 'consultante', icono: UserRound, titulo: 'Consultante', texto: 'Consentimiento y entrevista' },
   { id: 'clinico', icono: Stethoscope, titulo: 'Clínico', texto: 'Agenda, expedientes y cuadernos' },
 ];
 
-/** Pantalla de entrada, como en Oasis: cada quien elige su lado. */
+/** Pantalla de entrada: cada quien elige su lado. */
 export default function Inicio() {
   return (
     <div className="min-h-screen bg-base text-ink font-sans flex flex-col items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm animate-entrada">
         <div className="flex flex-col items-center text-center mb-10">
           <span className="font-display text-[56px] leading-none text-emerald-300" aria-hidden="true">Ψ</span>
-          <h1 className="font-display text-[40px] leading-tight mt-2">Oasis Clínico</h1>
+          <h1 className="font-display text-[40px] leading-tight mt-2">{NOMBRE}</h1>
           <p className="text-[14px] text-zinc-500 mt-1">¿Cómo entras?</p>
         </div>
         <div className="space-y-3">

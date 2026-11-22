@@ -1,7 +1,7 @@
 /**
  * miLista.js
  * Lógica de "Mi lista": sesiones recurrentes, avisos de confirmación y pagos.
- * Adaptada de la agenda de Oasis para funcionar sin servidor: todo vive en el navegador del terapeuta.
+ * Funciona sin servidor: todo vive en el navegador del terapeuta.
  *
  * Cada persona de la lista:
  *   { id, alias, telefono, proxima_sesion 'AAAA-MM-DD', hora_sesion 'HH:MM', frecuencia_dias (7, 14… 0 = una sola vez),

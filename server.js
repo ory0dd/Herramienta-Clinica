@@ -187,5 +187,5 @@ const servidor = http.createServer((req, res) => {
 });
 
 servidor.listen(PUERTO, '0.0.0.0', () => {
-  console.log(`Oasis Clínico en el puerto ${PUERTO} · asistente ${iaConectada() ? `conectado (${CF_MODELO})` : 'sin conectar'} · acceso: ${modoAcceso()}`);
+  console.log(`Consultorio en el puerto ${PUERTO} · asistente ${iaConectada() ? `conectado (${CF_MODELO})` : 'sin conectar'} · acceso: ${modoAcceso()}`);
 });

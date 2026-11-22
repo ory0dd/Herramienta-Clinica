@@ -85,7 +85,7 @@ Con Cloudflare Workers AI funcionan tres cosas: los **Cuadernos** de cada caso, 
 
 ## Paso 8 · Crea tu acceso (el candado de tu consultorio)
 
-Al abrir la app, cada quien elige su lado: **Consultante** o **Clínico** (como en Oasis). El dispositivo lo recuerda; con **Cerrar sesión** (ícono de salida, arriba a la derecha) se regresa a la pantalla de inicio. Tus consultantes crean su usuario en su lado (paso 9); el lado clínico se abre con un candado que se crea una sola vez.
+Al abrir la app, cada quien elige su lado: **Consultante** o **Clínico**. El dispositivo lo recuerda; con **Cerrar sesión** (ícono de salida, arriba a la derecha) se regresa a la pantalla de inicio. Tus consultantes crean su usuario en su lado (paso 9); el lado clínico se abre con un candado que se crea una sola vez.
 
 1. En Supabase ve a **Authentication** → **Users** → **Add user** → **Create new user**.
 2. Escribe tu correo y una contraseña segura, deja marcado **Auto Confirm User** y da clic en **Create user**.
@@ -139,6 +139,7 @@ Todo esto se cambia editando archivos de texto en tu repositorio de GitHub (bot�
 
 | Qué | Dónde |
 |---|---|
+| Nombre de tu consultorio (el que se ve en la app) | Variable `VITE_NOMBRE_CONSULTORIO` en Railway, o `src/data/marca.js` |
 | Consentimiento informado (encuadre, honorarios, aviso de privacidad) | `src/data/consentimiento.js`. Si lo cambias, cambia también la versión. |
 | Política de citas (horas de anticipo, para reagendar y límite de cancelación) | `POLITICA_CITAS` en `src/data/consentimiento.js` |
 | Tipos de informe y su estructura base | `src/data/informes.js` |

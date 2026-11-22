@@ -4,6 +4,9 @@ import App from './App.jsx';
 import '@fontsource-variable/geist';
 import '@fontsource/instrument-serif/latin-400.css';
 import './index.css';
+import { NOMBRE } from './data/marca';
+
+document.title = NOMBRE;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

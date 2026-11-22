@@ -18,7 +18,7 @@ import {
 } from './utils/nube';
 import { setActiveTherapist, getActiveTherapist, logoutTherapist, getPatients } from './utils/storage';
 
-// Al abrir, cada quien elige su lado (como en Oasis): #consultante es el portal; #/agenda/… es el consultorio.
+// Al abrir, cada quien elige su lado: #consultante es el portal; #/agenda/… es el consultorio.
 // La elección se recuerda en este dispositivo.
 const ladoActual = () => {
   const h = window.location.hash;
