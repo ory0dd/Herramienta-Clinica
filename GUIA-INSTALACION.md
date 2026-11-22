@@ -4,6 +4,8 @@ Con esta guía tendrás tu propio consultorio en línea: tu base de datos en Sup
 
 Tiempo aproximado: 30 a 40 minutos. No necesitas saber programar.
 
+> **¿Usas Codex o Claude Code?** Abre una carpeta nueva y pídele: *"Clona https://github.com/ory0dd/Herramienta-Clinica en esta carpeta, lee AGENTS.md y ayúdame a configurar mi consultorio paso a paso"*. Te va a llevar por estos mismos pasos.
+
 ## Lo que vas a necesitar
 
 - Una cuenta de **GitHub** (gratis): ahí vive tu copia de la plantilla.
@@ -156,4 +158,4 @@ El consentimiento incluido es una plantilla. Revísalo y adáptalo a tu encuadre
 
 ## Probar en tu computadora (opcional)
 
-Si tienes Node instalado: copia `.env.example` como `.env`, pega tus dos datos y corre `npm install` y después `npm run dev`.
+Si tienes Node 20 o más reciente: copia `.env.example` como `.env`, pega tus dos datos y corre `npm install`, `npm run build` y `npm start`. Abre http://localhost:3000.

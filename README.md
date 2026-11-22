@@ -15,7 +15,19 @@ Plantilla de consultorio en línea para psicólogas, psicólogos y terapeutas. C
   - Confirma el consentimiento informado escribiendo su nombre o grabando su voz.
   - Llena su entrevista inicial por secciones.
 
-## Cómo instalarla
+## Empieza aquí (con Codex o Claude Code)
+
+1. Crea una carpeta en tu computadora, por ejemplo `mi-consultorio`.
+2. Abre **Codex** (o Claude Code) en esa carpeta.
+3. Escríbele:
+
+   > Clona https://github.com/ory0dd/Herramienta-Clinica en esta carpeta, lee AGENTS.md y ayúdame a configurar mi consultorio paso a paso.
+
+4. El asistente te guía, un paso a la vez: tu copia privada en GitHub, tu base de datos en Supabase, tu página en Railway y, si quieres, el asistente de IA en Cloudflare.
+
+Nunca le pegues en el chat tu llave secreta de Supabase ni tu token de Cloudflare: esos van directo en Railway.
+
+## Cómo instalarla sin asistente
 
 Sigue la [guía de instalación](GUIA-INSTALACION.md). Toma de 30 a 40 minutos y no necesitas saber programar. Vas a usar:
 
