@@ -9,9 +9,9 @@ import { useRuta, vt, conTransiciones } from './rutas';
 
 export const inp = 'h-11 w-full rounded-xl bg-raised border border-line focus:border-emerald-400/60 outline-none px-3 text-[15px] text-ink placeholder:text-zinc-600';
 export const area = 'w-full rounded-xl bg-raised border border-line focus:border-emerald-400/60 outline-none p-3 text-[15px] leading-relaxed text-ink placeholder:text-zinc-600 resize-y';
-export const btnPri = 'h-11 px-5 rounded-xl text-[14px] font-semibold bg-emerald-400 hover:bg-emerald-300 text-emerald-950 disabled:opacity-40 disabled:active:scale-100 inline-flex items-center justify-center gap-2 transition duration-150 active:scale-[.97]';
-export const btnSec = 'h-11 px-4 rounded-xl text-[14px] text-zinc-300 bg-raised ring-1 ring-line/60 hover:text-ink hover:ring-line inline-flex items-center justify-center gap-2 transition duration-150 active:scale-[.97] disabled:opacity-40';
-export const btnTxt = 'h-10 px-3 rounded-lg text-[13.5px] text-zinc-400 hover:text-ink inline-flex items-center gap-2 transition duration-150 active:scale-[.97] disabled:opacity-40';
+export const btnPri = 'h-11 px-5 rounded-full text-[14px] font-semibold bg-emerald-400 hover:bg-emerald-300 text-emerald-950 disabled:opacity-40 disabled:active:scale-100 inline-flex items-center justify-center gap-2 transition duration-150 active:scale-[.97]';
+export const btnSec = 'h-11 px-4 rounded-full text-[14px] text-zinc-300 bg-raised ring-1 ring-line hover:text-ink hover:ring-zinc-700 inline-flex items-center justify-center gap-2 transition duration-150 active:scale-[.97] disabled:opacity-40';
+export const btnTxt = 'h-10 px-3 rounded-full text-[13.5px] text-zinc-400 hover:text-ink inline-flex items-center gap-2 transition duration-150 active:scale-[.97] disabled:opacity-40';
 
 // Animación de respaldo cuando el navegador no tiene View Transitions
 const ENTRADA = { adelante: 'animate-entrar-derecha', atras: 'animate-entrar-izquierda', lateral: 'animate-entrada' };
@@ -50,13 +50,13 @@ export function Pantalla({ titulo, antetitulo, subtitulo, atras, etiquetaAtras =
 /** Sub-pestañas de un apartado. El indicador se desliza de una a otra. */
 export function Subtabs({ items, activo, onCambio }) {
   return (
-    <nav className="flex gap-1 p-1 rounded-xl bg-surface border border-line w-fit max-w-full overflow-x-auto no-scrollbar mb-6" aria-label="Secciones">
+    <nav className="flex gap-1 p-1 rounded-full bg-surface border border-line w-fit max-w-full overflow-x-auto no-scrollbar mb-6" aria-label="Secciones">
       {items.map(({ id, label, cuenta }) => {
         const esta = id === activo;
         return (
           <button key={id} type="button" onClick={() => onCambio(id)} aria-current={esta ? 'page' : undefined}
-            className={`relative shrink-0 h-9 px-4 rounded-lg text-[13.5px] transition-colors ${esta ? 'text-ink' : 'text-zinc-500 hover:text-ink'}`}>
-            {esta && <span style={vt('indicador-sub')} className="absolute inset-0 rounded-lg bg-raised ring-1 ring-line" aria-hidden="true" />}
+            className={`relative shrink-0 h-9 px-4 rounded-full text-[13.5px] transition-colors ${esta ? 'text-ink' : 'text-zinc-500 hover:text-ink'}`}>
+            {esta && <span style={vt('indicador-sub')} className="absolute inset-0 rounded-full bg-raised ring-1 ring-line" aria-hidden="true" />}
             <span className="relative">{label}{cuenta != null && <span className="ml-1.5 text-zinc-500 tabular">{cuenta}</span>}</span>
           </button>
         );
@@ -68,11 +68,11 @@ export function Subtabs({ items, activo, onCambio }) {
 /** Bloque con título opcional. */
 export function Seccion({ titulo, nota, accion, children, className = '' }) {
   return (
-    <section className={`rounded-2xl border border-line bg-surface ${className}`}>
+    <section className={`rounded-3xl border border-line bg-surface shadow-suave overflow-hidden ${className}`}>
       {(titulo || accion) && (
-        <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 min-h-12 py-2 border-b border-line">
+        <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-5 min-h-14 py-2.5 border-b border-line">
           <div className="flex items-baseline gap-2 min-w-0">
-            {titulo && <h2 className="text-[14.5px] font-semibold text-ink">{titulo}</h2>}
+            {titulo && <h2 className="text-[15.5px] font-semibold tracking-tight text-ink">{titulo}</h2>}
             {nota && <span className="text-[12.5px] text-zinc-500 truncate">{nota}</span>}
           </div>
           {accion}
@@ -87,7 +87,7 @@ export function Seccion({ titulo, nota, accion, children, className = '' }) {
 export function FilaEnlace({ onClick, children, derecha, sinFlecha = false }) {
   return (
     <button type="button" onClick={onClick}
-      className="w-full text-left px-4 py-3.5 flex items-center gap-3 hover:bg-white/[0.025] active:bg-white/[0.04] transition-colors">
+      className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-white/[0.025] active:bg-white/[0.04] transition-colors">
       <div className="flex-1 min-w-0">{children}</div>
       {derecha}
       {!sinFlecha && <ChevronRight size={17} className="text-zinc-600 shrink-0" />}
@@ -121,10 +121,10 @@ export function Campo({ etiqueta, ayuda, children, className = '' }) {
 /** Confirmación dentro de la pantalla (sin ventanas emergentes). */
 export function Confirmar({ pregunta, siTexto = 'Sí, quitar', onSi, onNo }) {
   return (
-    <div className="rounded-xl border border-rose-500/30 bg-rose-500/[0.07] p-4 space-y-3">
+    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/[0.07] p-4 space-y-3">
       <p className="text-[14px] text-rose-100">{pregunta}</p>
       <div className="flex gap-2">
-        <button type="button" onClick={onSi} className="h-10 px-4 rounded-xl text-[13.5px] font-semibold bg-rose-400/90 text-rose-950">{siTexto}</button>
+        <button type="button" onClick={onSi} className="h-10 px-4 rounded-full text-[13.5px] font-semibold bg-rose-400/90 text-rose-950 transition active:scale-[.97]">{siTexto}</button>
         <button type="button" onClick={onNo} className={btnTxt}>Cancelar</button>
       </div>
     </div>

@@ -1,16 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 
-// Dirección visual: consultorio de noche. Grafito con un leve tono azul y un solo acento salvia,
-// apagado y tranquilo. Los colores de estado (ámbar avisar, rosa debe, azul sin confirmar) solo informan.
-// La escala "emerald" se redefine como salvia para que todo el dashboard use el mismo acento.
-const salvia = {
-  50: '#f4f7f2', 100: '#e6ede2', 200: '#d0dec9', 300: '#b8ceaf', 400: '#a1bd97',
-  500: '#88a77f', 600: '#6e8b66', 700: '#576f51', 800: '#455842', 900: '#384736', 950: '#1d261c',
-};
+// Dirección visual: consultorio de noche, con un solo acento salvia.
+// Los colores salen de variables (src/tema.css) para cambiar de tema sin tocar los componentes.
+const escala = (n) => Object.fromEntries([50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((s) => [s, `rgb(var(--${n}-${s}) / <alpha-value>)`]));
+const token = (n) => `rgb(var(--${n}) / <alpha-value>)`;
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
   theme: {
     // xs: pantallas de 340 px o más. bajo: pantallas bajitas, como la pantalla exterior del Galaxy Z Flip.
     screens: {
@@ -19,13 +15,19 @@ export default {
     },
     extend: {
       colors: {
-        emerald: salvia,
-        base: '#0b0d11',     // fondo de la página
-        surface: '#111419',  // tarjetas
-        raised: '#171b22',   // elementos activos y campos
-        line: '#242a34',     // bordes y divisiones
-        ink: '#e9ebef',      // texto principal
+        zinc: escala('zinc'),
+        emerald: escala('emerald'), // salvia
+        rose: escala('rose'),
+        amber: escala('amber'),
+        sky: escala('sky'),
+        white: token('velo'),  // realces translúcidos (bg-white/[0.03]); un blanco fijo es bg-[#fff]
+        base: token('base'),       // fondo de la página
+        surface: token('surface'), // tarjetas
+        raised: token('raised'),   // elementos activos y campos
+        line: token('line'),       // bordes y divisiones
+        ink: token('ink'),         // texto principal
       },
+      boxShadow: { suave: 'var(--sombra)' },
       fontFamily: {
         sans: ['"Geist Variable"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],

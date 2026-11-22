@@ -1,10 +1,8 @@
+@import './tema.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  color-scheme: dark;
-}
 
 html {
   background-color: theme('colors.base');
@@ -47,7 +45,7 @@ h1, h2, h3 {
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: theme('colors.line'); border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #343b48; }
+::-webkit-scrollbar-thumb:hover { background: theme('colors.zinc.700'); }
 
 /* ---------- Transiciones entre pantallas (View Transitions) ----------
    El contenido se desliza según la dirección; la navegación queda quieta;

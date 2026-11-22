@@ -47,18 +47,19 @@ export default function Navegacion({ estado, onSalir }) {
   return (
     <>
       {/* Escritorio: barra lateral */}
-      <aside className="hidden lg:flex lg:flex-col w-56 shrink-0 h-screen sticky top-0 border-r border-line px-3 py-6" style={vt('navegacion')}>
+      <aside className="hidden lg:flex lg:flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-line bg-surface/40 px-3 py-6" style={vt('navegacion')}>
         <button type="button" onClick={() => navegar(['agenda', 'hoy'])} className="px-3 text-left"><Marca /></button>
         <nav className="mt-8 flex-1" aria-label="Apartados">
-          <ul className="space-y-0.5">
+          <p className="px-3 mb-2 text-[11px] uppercase tracking-[0.1em] text-zinc-600">Consultorio</p>
+          <ul className="space-y-1">
             {APARTADOS.map((a) => {
               const activo = a.id === actual;
               const Icono = a.icon;
               return (
                 <li key={a.id}>
                   <button type="button" onClick={() => ir(a)} aria-current={activo ? 'page' : undefined}
-                    className={`relative w-full h-10 px-3 rounded-xl flex items-center gap-3 text-[14px] transition-colors ${activo ? 'text-ink' : 'text-zinc-500 hover:text-ink'}`}>
-                    {activo && <span style={vt('indicador-nav')} className="absolute inset-0 rounded-xl bg-raised" aria-hidden="true" />}
+                    className={`relative w-full h-11 px-3 rounded-2xl flex items-center gap-3 text-[14px] transition-colors ${activo ? 'text-ink font-medium' : 'text-zinc-500 hover:text-ink hover:bg-white/[0.02]'}`}>
+                    {activo && <span style={vt('indicador-nav')} className="absolute inset-0 rounded-2xl bg-raised ring-1 ring-line" aria-hidden="true" />}
                     <Icono size={17} className={`relative ${activo ? 'text-emerald-300' : ''}`} />
                     <span className="relative">{a.label}</span>
                   </button>
@@ -67,18 +68,20 @@ export default function Navegacion({ estado, onSalir }) {
             })}
           </ul>
         </nav>
-        <div className="px-1 flex items-center justify-between gap-2">
-          <span className="px-2"><EstadoGuardado estado={estado} /></span>
+        <div className="rounded-2xl border border-line bg-surface p-1.5 space-y-0.5">
+        <div className="flex items-center justify-between gap-2 pl-2.5">
+          <EstadoGuardado estado={estado} />
           <button type="button" onClick={() => navegar(['ajustes'])} aria-label="Ajustes" title="Ajustes" aria-current={enAjustes ? 'page' : undefined}
             className={`w-9 h-9 grid place-items-center rounded-xl transition-colors ${enAjustes ? 'bg-raised text-ink' : 'text-zinc-500 hover:text-ink'}`}><Settings2 size={17} /></button>
         </div>
-        <button type="button" onClick={onSalir} className="mt-2 w-full h-10 px-3 rounded-xl flex items-center gap-3 text-[14px] text-zinc-500 hover:text-ink hover:bg-white/[0.03] transition-colors">
+        <button type="button" onClick={onSalir} className="w-full h-10 px-2.5 rounded-xl flex items-center gap-3 text-[14px] text-zinc-500 hover:text-ink hover:bg-white/[0.03] transition-colors">
           <LogOut size={17} /> Cerrar sesión
         </button>
+        </div>
       </aside>
 
       {/* Celular: barra superior mínima */}
-      <header className="lg:hidden sticky top-0 bajo:static z-30 bg-base border-b border-line" style={vt('barra-superior')}>
+      <header className="lg:hidden sticky top-0 bajo:static z-30 bg-base/85 backdrop-blur-xl border-b border-line" style={vt('barra-superior')}>
         <div className="flex items-center justify-between gap-2 px-4 h-12" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <button type="button" onClick={() => navegar(['agenda', 'hoy'])}><Marca /></button>
           <span className="flex items-center -mr-1.5">
@@ -91,7 +94,7 @@ export default function Navegacion({ estado, onSalir }) {
       </header>
 
       {/* Celular: barra inferior de apartados */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-base border-t border-line" style={{ ...vt('barra-inferior'), paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} aria-label="Apartados">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-base/85 backdrop-blur-xl border-t border-line" style={{ ...vt('barra-inferior'), paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} aria-label="Apartados">
         <ul className="grid grid-cols-5 h-[60px] bajo:h-[50px] px-1">
           {APARTADOS.map((a) => {
             const activo = a.id === actual;

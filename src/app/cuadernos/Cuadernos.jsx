@@ -32,7 +32,7 @@ function useCopiar() {
 function Icono({ icono: I, etiqueta, onClick, activo = false, tamaño = 'w-10 h-10', className = '', ...resto }) {
   return (
     <button type="button" onClick={onClick} aria-label={etiqueta} title={etiqueta} {...resto}
-      className={`${tamaño} shrink-0 grid place-items-center rounded-xl transition active:scale-95 disabled:opacity-40 ${activo ? 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300' : 'text-zinc-400 hover:text-ink hover:bg-white/[0.04]'} ${className}`}>
+      className={`${tamaño} shrink-0 grid place-items-center rounded-full transition active:scale-95 disabled:opacity-40 ${activo ? 'bg-emerald-400 text-emerald-950 hover:bg-emerald-300' : 'text-zinc-400 hover:text-ink hover:bg-white/[0.04]'} ${className}`}>
       <I size={18} />
     </button>
   );
@@ -154,18 +154,50 @@ function Chat({ cu, con }) {
     aviso('Guardada en el expediente');
   };
 
+  const vacio = cu.chat.length === 0;
+  const memoria = [cu.paciente && 'ficha', cu.fuentes.some((f) => f.id === 'notas') && 'notas', cu.delPortal && 'entrevista',
+    cu.sesiones.length && `${cu.sesiones.length} ${cu.sesiones.length === 1 ? 'sesión' : 'sesiones'}`].filter(Boolean);
+  const errorCaja = error && <p className="mb-2 rounded-2xl bg-rose-500/10 px-3.5 py-2.5 text-[13px] text-rose-200">{error}</p>;
+  const campo = (
+    <textarea ref={campoRef} rows={vacio ? 3 : 1} value={texto} onChange={(e) => setTexto(e.target.value)} aria-label="Pregunta para el asistente"
+      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); } }}
+      placeholder={vacio ? 'Pregunta sobre el caso o pega tus apuntes…' : 'Escribe…'}
+      className={`flex-1 w-full min-w-0 bg-transparent outline-none resize-none text-[15px] leading-6 text-ink placeholder:text-zinc-600 ${vacio ? 'px-2 pt-1.5 min-h-[72px]' : 'py-2 px-1'}`} />
+  );
+  const sesion = <Icono icono={Mic} etiqueta="Agregar sesión a la memoria" onClick={() => navegar(['cuadernos', cu.caso, 'sesiones', 'nueva'])} />;
+  const mandar = <Icono icono={con.conectado ? ArrowUp : Copy} etiqueta={con.conectado ? 'Enviar' : 'Copiar como prompt para Claude'} activo onClick={enviar} disabled={!texto.trim() || pensando} />;
+
+  // Sin conversación: la caja va al centro, grande, como punto de partida
+  if (vacio) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-320px)] lg:min-h-[calc(100dvh-240px)] py-8">
+        <div className="w-full max-w-xl text-center animate-entrada">
+          <span className="mx-auto w-12 h-12 rounded-2xl bg-surface ring-1 ring-line grid place-items-center text-emerald-300"><Sparkles size={20} /></span>
+          <h2 className="font-display text-[30px] xs:text-[36px] leading-tight text-ink mt-4">¿Qué quieres saber del caso?</h2>
+          <p className="text-[14px] text-zinc-500 mt-1.5">Responde solo con lo que hay en su memoria.</p>
+          <div className="mt-6 text-left">
+            {errorCaja}
+            <div className="rounded-3xl bg-surface ring-1 ring-line focus-within:ring-emerald-400/50 shadow-suave p-2.5 transition">
+              {campo}
+              <div className="flex items-center justify-between gap-2 mt-1">{sesion}{mandar}</div>
+            </div>
+          </div>
+          {memoria.length > 0 && (
+            <p className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[12.5px] text-zinc-500">
+              {memoria.map((m) => <span key={m} className="inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" aria-hidden="true" />{m}</span>)}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-[calc(100dvh-300px)] lg:min-h-[calc(100dvh-220px)]">
       <div className="flex-1 space-y-6 pb-4">
-        {cu.chat.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center gap-3 py-20 lg:py-28">
-            <span className="w-12 h-12 rounded-2xl bg-surface ring-1 ring-line grid place-items-center text-emerald-300"><Sparkles size={20} /></span>
-            <p className="text-[15px] text-zinc-400">Pregunta sobre el caso</p>
-          </div>
-        )}
         {cu.chat.map((m, i) => (m.role === 'user' ? (
           <div key={i} className="flex justify-end animate-entrada">
-            <p className="max-w-[85%] rounded-2xl rounded-br-md bg-raised px-4 py-2.5 text-[15px] leading-relaxed text-ink whitespace-pre-wrap break-words">{m.content}</p>
+            <p className="max-w-[85%] rounded-3xl rounded-br-lg bg-raised px-4 py-2.5 text-[15px] leading-relaxed text-ink whitespace-pre-wrap break-words">{m.content}</p>
           </div>
         ) : (
           <div key={i} className="animate-entrada">
@@ -180,14 +212,9 @@ function Chat({ cu, con }) {
         <div ref={finRef} />
       </div>
       <div className="sticky bottom-[calc(68px+env(safe-area-inset-bottom))] bajo:bottom-[58px] lg:bottom-6 pt-2 bg-base">
-        {error && <p className="mb-2 rounded-xl bg-rose-500/10 px-3 py-2 text-[13px] text-rose-200">{error}</p>}
-        <div className="flex items-end gap-1 rounded-2xl bg-surface ring-1 ring-line focus-within:ring-emerald-400/50 p-1.5 transition">
-          <Icono icono={Mic} etiqueta="Agregar sesión a la memoria" onClick={() => navegar(['cuadernos', cu.caso, 'sesiones', 'nueva'])} />
-          <textarea ref={campoRef} rows={1} value={texto} onChange={(e) => setTexto(e.target.value)} aria-label="Pregunta para el asistente"
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); } }}
-            placeholder="Escribe…"
-            className="flex-1 min-w-0 bg-transparent outline-none resize-none py-2 px-1 text-[15px] leading-6 text-ink placeholder:text-zinc-600" />
-          <Icono icono={con.conectado ? ArrowUp : Copy} etiqueta={con.conectado ? 'Enviar' : 'Copiar como prompt para Claude'} activo onClick={enviar} disabled={!texto.trim() || pensando} />
+        {errorCaja}
+        <div className="flex items-end gap-1 rounded-full bg-surface ring-1 ring-line focus-within:ring-emerald-400/50 shadow-suave p-1.5 transition">
+          {sesion}{campo}{mandar}
         </div>
       </div>
     </div>
@@ -249,7 +276,7 @@ function Memoria({ cu }) {
                     <FileText size={15} className={activa ? 'text-zinc-400 shrink-0' : 'text-zinc-700 shrink-0'} />
                     <span className={`flex-1 text-[14px] truncate ${activa ? 'text-zinc-200' : 'text-zinc-600 line-through decoration-zinc-700'}`}>{f.titulo}</span>
                     <span aria-hidden="true" className={`w-8 h-[18px] rounded-full p-0.5 transition-colors shrink-0 ${activa ? 'bg-emerald-400/80' : 'bg-zinc-700'}`}>
-                      <span className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform ${activa ? 'translate-x-3.5' : ''}`} />
+                      <span className={`block w-3.5 h-3.5 rounded-full bg-[#fff] transition-transform ${activa ? 'translate-x-3.5' : ''}`} />
                     </span>
                   </button>
                   {f.doc && <Icono icono={Trash2} etiqueta={`Quitar ${f.titulo}`} tamaño="w-8 h-8" className="text-zinc-600 hover:!text-rose-300" onClick={() => cu.quitarDoc(f.id.slice(4))} />}

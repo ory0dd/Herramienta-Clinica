@@ -153,11 +153,11 @@ function VistaHoy({ ag }) {
 
   return (
     <div className="space-y-6">
-      <dl className="grid grid-cols-3 gap-2">
+      <dl className="grid grid-cols-3 gap-2 sm:gap-3">
         {resumen.map((r) => (
-          <div key={r.label} className="rounded-2xl bg-surface border border-line px-3 xs:px-4 py-3">
-            <dt className="text-[12px] text-zinc-500">{r.label}</dt>
-            <dd className={`font-display text-[30px] xs:text-[36px] leading-none mt-1 tabular ${r.alerta ? 'text-amber-300' : 'text-ink'}`}>{r.valor}</dd>
+          <div key={r.label} className="rounded-3xl bg-surface border border-line shadow-suave px-3.5 xs:px-5 py-4 xs:py-5">
+            <dt className="text-[12px] xs:text-[13px] text-zinc-500 flex items-center gap-1.5">{r.alerta && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" aria-hidden="true" />}{r.label}</dt>
+            <dd className={`font-display text-[34px] xs:text-[44px] leading-none mt-2 tabular ${r.alerta ? 'text-amber-300' : 'text-ink'}`}>{r.valor}</dd>
           </div>
         ))}
       </dl>

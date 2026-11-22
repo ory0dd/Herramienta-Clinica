@@ -12,8 +12,8 @@ import { volverAlInicio, recordarModo } from '../app/modo';
 
 const inp = 'w-full h-12 rounded-xl bg-raised border border-line focus:border-emerald-400/60 outline-none px-3.5 text-[15px] text-ink placeholder:text-zinc-600 transition-colors';
 const area = 'w-full rounded-xl bg-raised border border-line focus:border-emerald-400/60 outline-none p-3 text-[15px] leading-relaxed text-ink placeholder:text-zinc-600 resize-y';
-const btnPri = 'h-12 px-5 rounded-xl text-[15px] font-semibold bg-emerald-400 hover:bg-emerald-300 text-emerald-950 disabled:opacity-40 flex items-center justify-center gap-2 transition active:scale-[.98]';
-const btnSec = 'h-11 px-4 rounded-xl text-sm text-zinc-400 hover:text-ink flex items-center gap-2 transition-colors';
+const btnPri = 'h-12 px-5 rounded-full text-[15px] font-semibold bg-emerald-400 hover:bg-emerald-300 text-emerald-950 disabled:opacity-40 flex items-center justify-center gap-2 transition active:scale-[.98]';
+const btnSec = 'h-11 px-4 rounded-full text-sm text-zinc-400 hover:text-ink flex items-center gap-2 transition-colors';
 const etiqueta = 'block space-y-1.5 text-[13px] text-zinc-400';
 
 // Acceso con Google: se muestra cuando el consultorio lo activó (VITE_ACCESO_GOOGLE=si) y en la vista previa
@@ -394,7 +394,7 @@ export default function PortalConsultante() {
 
         {(CON_GOOGLE || !hayNube) && (
           <>
-            <button type="button" onClick={conGoogle} className="w-full h-12 rounded-xl bg-white text-zinc-900 text-[15px] font-medium flex items-center justify-center gap-3 transition active:scale-[.98] hover:bg-zinc-100">
+            <button type="button" onClick={conGoogle} className="w-full h-12 rounded-full bg-[#fff] text-[#18181b] ring-1 ring-black/10 text-[15px] font-medium flex items-center justify-center gap-3 transition active:scale-[.98] hover:bg-[#f4f4f5]">
               <LogoGoogle /> Continuar con Google
             </button>
             <div className="flex items-center gap-3 text-[12px] text-zinc-600"><span className="flex-1 h-px bg-line" />o con tu correo<span className="flex-1 h-px bg-line" /></div>
