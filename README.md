@@ -32,7 +32,7 @@ Nunca le pegues en el chat tu llave secreta de Supabase ni tu token de Cloudflar
 
 ## Cómo instalarla sin asistente
 
-Sigue la [guía de instalación](GUIA-INSTALACION.md). Toma de 30 a 40 minutos y no necesitas saber programar. Vas a usar:
+Sigue la [guía de instalación](GUIA-INSTALACION.md) (también en [PDF](GUIA-INSTALACION.pdf)). Toma de 30 a 40 minutos y no necesitas saber programar. Vas a usar:
 
 - **Supabase** para la base de datos y los accesos (tiene plan gratuito).
 - **Railway** para publicar tu página.

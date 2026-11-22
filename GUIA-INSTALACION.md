@@ -1,4 +1,4 @@
-# Guía de instalación del Dashboard Clínico
+# Guía de instalación de aniima
 
 Con esta guía tendrás tu propio consultorio en línea: tu base de datos en Supabase, tu página publicada en Railway, un asistente de inteligencia artificial en Cloudflare y un link para que tus consultantes firmen su consentimiento informado y llenen su entrevista desde el celular.
 
@@ -29,15 +29,26 @@ Esa copia es tuya: ahí puedes cambiar textos, colores y lo que quieras sin afec
 
 ## Paso 2 · Crea tu base de datos en Supabase
 
-1. Entra a supabase.com y da clic en **New project**.
-2. Ponle nombre (por ejemplo, `mi-consultorio`), crea una contraseña para la base de datos y guárdala en un lugar seguro.
-3. En **Region**, elige la más cercana a México (por ejemplo, una de Estados Unidos).
-4. Espera unos minutos a que el proyecto termine de crearse.
+1. Entra a supabase.com, inicia sesión (puedes usar tu cuenta de GitHub) y da clic en **New project**.
+2. Llena la pantalla **Create a new project** así:
+
+   | Campo | Qué poner |
+   |---|---|
+   | **Organization** | La tuya (la que se crea al registrarte). |
+   | **GitHub (optional)** | Déjalo así, no hace falta conectarlo. |
+   | **Project name** | Borra el que viene y pon el nombre de tu consultorio, por ejemplo `mi-consultorio`. |
+   | **Database password** | Da clic en **Generate a password** y guárdala en un lugar seguro (notas privadas o tu gestor de contraseñas). Casi no la vas a usar, pero no la compartas. |
+   | **Region** | **Americas** está bien (o una de Estados Unidos, la más cercana a México). |
+   | **Enable Data API** | ✅ Déjalo **marcado**: la app lo necesita. |
+   | **Grant API access to new tables automatically** | ⬜ **Desmárcalo**: el esquema de la plantilla ya da los permisos exactos que necesita cada tabla. |
+   | **Enable RLS on new tables automatically** | ✅ **Márcalo**: es la protección para que cada quien vea solo lo suyo. |
+
+3. Da clic en **Create new project** y espera uno o dos minutos a que termine de prepararse.
 
 ## Paso 3 · Pega el esquema de la base de datos
 
 1. En el menú de la izquierda, entra a **SQL Editor** y da clic en **New query**.
-2. Abre el archivo `supabase/esquema.sql` de la plantilla, copia todo y pégalo.
+2. Abre el archivo `supabase/esquema.sql` de la plantilla (en GitHub: https://github.com/ory0dd/Herramienta-Clinica/blob/main/supabase/esquema.sql). Copia todo con el botón de copiar (los dos cuadritos, arriba a la derecha del archivo) y pégalo.
 3. Da clic en **Run**. Debe decir "Success". Si lo corres dos veces no pasa nada.
 
 > Si ya tenías la plantilla instalada, vuelve a correr el esquema completo cada vez que actualices: así se agregan las partes nuevas (por ejemplo, el consentimiento con audio) sin borrar nada.
