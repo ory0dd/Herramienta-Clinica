@@ -1,4 +1,4 @@
-# Herramienta Clínica
+# Ánima
 
 Plantilla de consultorio en línea para psicólogas, psicólogos y terapeutas. Cada terapeuta tiene **su propia copia**, con su propia base de datos: nadie más ve a sus pacientes.
 
