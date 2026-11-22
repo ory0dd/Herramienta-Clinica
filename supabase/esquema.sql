@@ -1,11 +1,11 @@
 -- =====================================================================
--- Dashboard Clínico · esquema de Supabase
+-- aniima · esquema de Supabase
 -- Pégalo completo en Supabase > SQL Editor y dale "Run". Se puede volver a correr sin romper nada.
 --
 -- Quién puede ver qué:
---   · Terapeuta: solo las cuentas que agregues a la tabla `terapeutas` (paso 7, abajo).
+--   · Terapeuta (lado clínico): solo las cuentas que agregues a la tabla `terapeutas` (paso 7, abajo).
 --     Ve y guarda sus expedientes, Mi lista y pagos, y lee las entrevistas de sus consultantes.
---   · Consultante: crea su propia cuenta con un nombre de usuario y el código de invitación
+--   · Consultante: crea su propia cuenta con su correo (o Google) y el código de invitación
 --     que le das. Solo ve y edita su propia entrevista.
 -- =====================================================================
 
