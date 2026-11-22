@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background-color: theme('colors.base');
+}
+
+body {
+  margin: 0;
+  font-family: theme('fontFamily.sans');
+  background-color: theme('colors.base');
+  color: theme('colors.ink');
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Cifras alineadas en columnas (horas, montos, contadores) */
+.font-mono, .tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Foco visible con teclado */
+:focus-visible {
+  outline: 2px solid theme('colors.emerald.400');
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+::selection {
+  background: theme('colors.emerald.500 / 30%');
+  color: theme('colors.ink');
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: theme('colors.line'); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #343b48; }
+
+/* ---------- Transiciones entre pantallas (View Transitions) ----------
+   El contenido se desliza según la dirección; la navegación queda quieta;
+   los elementos con el mismo nombre (título, indicador) viajan de una pantalla a otra. */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
+
+/* El grupo del paso no se mueve: solo se deslizan su imagen vieja y nueva */
+::view-transition-group(paso) { animation: none; }
+
+::view-transition-group(*) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(.22, .8, .24, 1);
+}
+
+::view-transition-old(contenido),
+::view-transition-new(contenido),
+::view-transition-old(paso),
+::view-transition-new(paso) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(.22, .8, .24, 1);
+  animation-fill-mode: both;
+}
+html[data-dir="adelante"]::view-transition-old(contenido),
+html[data-dir^="adelante"]::view-transition-old(paso) { animation-name: vt-salir-izquierda; }
+html[data-dir="adelante"]::view-transition-new(contenido),
+html[data-dir^="adelante"]::view-transition-new(paso) { animation-name: vt-entrar-derecha; }
+html[data-dir="atras"]::view-transition-old(contenido),
+html[data-dir^="atras"]::view-transition-old(paso) { animation-name: vt-salir-derecha; }
+html[data-dir="atras"]::view-transition-new(contenido),
+html[data-dir^="atras"]::view-transition-new(paso) { animation-name: vt-entrar-izquierda; }
+html[data-dir="lateral"]::view-transition-old(contenido) { animation-name: vt-desvanecer; animation-duration: 160ms; }
+html[data-dir="lateral"]::view-transition-new(contenido) { animation-name: vt-aparecer; }
+
+@keyframes vt-entrar-derecha { from { opacity: 0; transform: translateX(36px); } }
+@keyframes vt-entrar-izquierda { from { opacity: 0; transform: translateX(-36px); } }
+@keyframes vt-salir-izquierda { to { opacity: 0; transform: translateX(-36px); } }
+@keyframes vt-salir-derecha { to { opacity: 0; transform: translateX(36px); } }
+@keyframes vt-aparecer { from { opacity: 0; transform: translateY(8px); } }
+@keyframes vt-desvanecer { to { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Impresión: solo sale la hoja del documento ---------- */
+@media print {
+  @page { margin: 18mm; }
+  html, body { background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .imprimible, .imprimible * { visibility: visible !important; }
+  .imprimible { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; background: #fff !important; }
+}
