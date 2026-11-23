@@ -162,34 +162,45 @@ function Grabadora({ audio, onAudio, frase }) {
   );
 }
 
-function Pregunta({ p, valor, onCambio, onSalir }) {
+/** La respuesta de una pregunta, en grande (una pregunta por pantalla, como una plática). */
+function Respuesta({ p, valor, onCambio, onListo }) {
   const id = `pc-${p.id}`;
+  const marcada = (v) => valor !== undefined && valor !== null && valor !== '' && String(valor) === String(v);
   return (
-    <div className="space-y-2.5">
-      <label htmlFor={p.tipo === 'opciones' || p.tipo === 'escala' ? undefined : id} className="block text-[15px] font-medium text-ink leading-snug">{p.titulo}</label>
-      {p.tipo === 'corto' && <input id={id} value={valor || ''} onChange={(e) => onCambio(e.target.value)} onBlur={onSalir} placeholder={p.placeholder} className={inp} />}
-      {p.tipo === 'largo' && <textarea id={id} rows={3} value={valor || ''} onChange={(e) => onCambio(e.target.value)} onBlur={onSalir} placeholder={p.placeholder} className={area} />}
+    <div className="space-y-3">
+      {p.tipo === 'corto' && (
+        <input id={id} autoFocus value={valor || ''} onChange={(e) => onCambio(e.target.value)} aria-label={p.titulo}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onListo(); } }}
+          placeholder={p.placeholder} className={`${inp} !h-14 !text-[17px] !rounded-2xl !px-4`} />
+      )}
+      {p.tipo === 'largo' && (
+        <textarea id={id} autoFocus value={valor || ''} onChange={(e) => onCambio(e.target.value)} aria-label={p.titulo}
+          placeholder={p.placeholder} className={`${area} min-h-[190px] !text-[16px] !rounded-2xl !p-4 resize-none`} />
+      )}
       {p.tipo === 'opciones' && (
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={p.titulo}>
+        <div className="grid gap-2" role="radiogroup" aria-label={p.titulo}>
           {p.opciones.map((o) => (
-            <button key={o} type="button" role="radio" aria-checked={valor === o} onClick={() => onCambio(o)}
-              className={`min-h-10 px-3.5 py-2 rounded-xl text-[14px] text-left transition-colors ${valor === o ? 'bg-emerald-400/15 text-emerald-200 ring-1 ring-emerald-400/50' : 'bg-raised text-zinc-300 hover:text-ink'}`}>{o}</button>
+            <button key={o} type="button" role="radio" aria-checked={marcada(o)} onClick={() => onCambio(o)}
+              className={`w-full min-h-[52px] px-4 py-3 rounded-2xl text-[15.5px] text-left flex items-center justify-between gap-3 transition active:scale-[.99] ${marcada(o) ? 'bg-emerald-400/15 text-emerald-100 ring-1 ring-emerald-400/60' : 'bg-surface ring-1 ring-line text-zinc-300 hover:text-ink hover:ring-zinc-700'}`}>
+              {o}
+              <span className={`w-5 h-5 shrink-0 rounded-full grid place-items-center ${marcada(o) ? 'bg-emerald-400 text-emerald-950' : 'ring-1 ring-zinc-700'}`}>{marcada(o) && <Check size={12} strokeWidth={3} />}</span>
+            </button>
           ))}
         </div>
       )}
       {p.tipo === 'escala' && (
         <div>
-          <div className="grid grid-cols-11 gap-1" role="radiogroup" aria-label={p.titulo}>
+          <div className="grid grid-cols-6 xs:grid-cols-11 gap-1.5" role="radiogroup" aria-label={p.titulo}>
             {Array.from({ length: 11 }, (_, n) => (
-              <button key={n} type="button" role="radio" aria-checked={valor !== undefined && valor !== '' && Number(valor) === n} aria-label={String(n)} onClick={() => onCambio(n)}
-                className={`h-10 rounded-lg text-[13px] tabular transition-colors ${Number(valor) === n && valor !== '' && valor != null ? 'bg-emerald-400 text-emerald-950 font-semibold' : 'bg-raised text-zinc-400 hover:text-ink'}`}>{n}</button>
+              <button key={n} type="button" role="radio" aria-checked={marcada(n)} aria-label={String(n)} onClick={() => onCambio(n)}
+                className={`h-12 rounded-xl text-[15px] tabular transition active:scale-95 ${marcada(n) ? 'bg-emerald-400 text-emerald-950 font-semibold' : 'bg-surface ring-1 ring-line text-zinc-400 hover:text-ink'}`}>{n}</button>
             ))}
           </div>
-          <div className="flex justify-between text-[12px] text-zinc-500 mt-1.5"><span>{p.minimo}</span><span>{p.maximo}</span></div>
+          <div className="flex justify-between text-[12.5px] text-zinc-500 mt-2"><span>0 · {p.minimo}</span><span>10 · {p.maximo}</span></div>
         </div>
       )}
       {p.riesgo && valor && valor !== 'No' && (
-        <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-[13.5px] leading-relaxed text-amber-100">{MENSAJE_CRISIS}</p>
+        <p className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[14px] leading-relaxed text-amber-100">{MENSAJE_CRISIS}</p>
       )}
     </div>
   );
@@ -206,7 +217,8 @@ export default function PortalConsultante() {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [resp, setResp] = useState({});
-  const [seccion, setSeccion] = useState(0);
+  const [paso, setPaso] = useState(0);         // pregunta actual de la entrevista
+  const [intro, setIntro] = useState(false);   // pantalla de bienvenida antes de la primera pregunta
   const [completada, setCompletada] = useState(false);
   const [vista, setVista] = useState('inicio'); // inicio | entrevista | consentimiento
   const [recienEnviada, setRecienEnviada] = useState(false);
@@ -257,7 +269,7 @@ export default function PortalConsultante() {
     } else { setRegistro(undefined); setConsentimiento(undefined); }
   }, [sesion?.id, esConsultante]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { arriba.current?.scrollIntoView({ block: 'start' }); }, [seccion, consentimiento, vista]);
+  useEffect(() => { arriba.current?.scrollIntoView({ block: 'start' }); }, [paso, intro, consentimiento, vista]);
 
   const registrar = async (correo) => {
     const { error: e } = await nube.from('consultantes').insert({ usuario: usuarioDe(correo), alias: f.alias.trim(), codigo: f.codigo.trim() });
@@ -327,7 +339,8 @@ export default function PortalConsultante() {
     // Al firmar, pasa directo a la entrevista
     const continuar = (extra = {}) => animar(() => {
       setConsentimiento({ ...registroFirma, ...extra, aceptado_en: new Date().toISOString() });
-      setSeccion(0);
+      setPaso(0);
+      setIntro(true);
       setVista('entrevista');
     }, 'adelante', true);
     if (demo) { continuar(firma.metodo === 'audio' ? { audioUrl: firma.audio.url } : {}); return undefined; }
@@ -361,7 +374,7 @@ export default function PortalConsultante() {
   const salir = async () => {
     if (demo) { setDemo(false); }
     else await nube.auth.signOut();
-    setResp({}); setSeccion(0); setCompletada(false); setVista('inicio'); setRecienEnviada(false); setConsentimiento(undefined);
+    setResp({}); setPaso(0); setIntro(false); setCompletada(false); setVista('inicio'); setRecienEnviada(false); setConsentimiento(undefined);
     setF({ correo: '', password: '', alias: '', codigo: '' }); setFirma({ nombre: '', acepto: false, metodo: 'escrito', audio: null });
   };
 
@@ -527,7 +540,9 @@ export default function PortalConsultante() {
   const respondida = (p) => String(resp[p.id] ?? '').trim() !== '';
   const hechas = PREGUNTAS_ENTREVISTA.filter(respondida).length;
   const ir = (v, direccion = 'adelante') => animar(() => setVista(v), direccion, true);
-  const abrirSeccion = (i) => animar(() => { setSeccion(i); setVista('entrevista'); setRecienEnviada(false); }, 'adelante', true);
+  // Abre la entrevista en la primera pregunta de una sección (o en la bienvenida si aún no responde nada)
+  const inicioDe = (i) => SECCIONES.slice(0, i).reduce((n, x) => n + x.preguntas.length, 0);
+  const abrirSeccion = (i) => animar(() => { setPaso(inicioDe(i)); setIntro(hechas === 0 && i === 0); setVista('entrevista'); setRecienEnviada(false); }, 'adelante', true);
   const volverAlEspacio = (
     <button type="button" onClick={() => { guardar(resp); ir('inicio', 'atras'); }} className="-ml-2 h-9 pl-1 pr-3 rounded-lg inline-flex items-center gap-1 text-[14px] text-zinc-400 hover:text-ink">
       <ArrowLeft size={17} /> Mi espacio
@@ -549,56 +564,74 @@ export default function PortalConsultante() {
   }
 
   if (vista === 'entrevista') {
-    const s = SECCIONES[seccion];
-    const ultima = seccion === SECCIONES.length - 1;
-    const cambiar = (id, v) => setResp({ ...resp, [id]: v });
+    const estadoGuardado = guardado === 'guardando' ? 'Guardando…' : guardado === 'error' ? 'No se pudo guardar; revisa tu internet' : guardado === 'guardado' ? 'Guardado' : '';
+
+    // Bienvenida, antes de la primera pregunta
+    if (intro) {
+      return (
+        <Marco>
+          <div ref={arriba} />
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">{volverAlEspacio}<Pasos actual={2} /></div>
+          {avisoDemo}
+          <section style={vt('paso')} className="min-h-[55vh] flex flex-col justify-center gap-6">
+            <div className="space-y-3">
+              <p className="text-[12px] uppercase tracking-[0.09em] text-emerald-300/80">Entrevista inicial</p>
+              <h1 className="font-display text-[38px] xs:text-[46px] leading-[1.02] text-ink">Cuéntame un poco de ti</h1>
+              <p className="text-[15.5px] text-zinc-400 leading-relaxed">Son {total} preguntas sobre tu momento, tu descanso y lo que te trae, para que tu primera sesión empiece con más contexto. Va una por una: responde a tu ritmo, salta las que no quieras y vuelve cuando quieras. Se guarda sola.</p>
+            </div>
+            <button type="button" onClick={() => animar(() => setIntro(false), 'adelante')} className={`${btnPri} self-start`}>Empezar <ArrowRight size={17} /></button>
+          </section>
+        </Marco>
+      );
+    }
+
+    const p = PREGUNTAS_ENTREVISTA[paso];
+    const sec = SECCIONES.find((x) => x.titulo === p.seccion);
+    const primeraDeSeccion = sec?.preguntas[0].id === p.id;
+    const ultima = paso === total - 1;
+    const lista = respondida(p);
+    const mover = (d) => { guardar(resp); animar(() => setPaso(paso + d), d > 0 ? 'adelante' : 'atras'); };
+    const siguiente = async () => {
+      if (!ultima) { mover(1); return; }
+      if (await guardar(resp, true)) { setRecienEnviada(true); ir('inicio', 'atras'); }
+    };
     return (
       <Marco>
         <div ref={arriba} />
-        {volverAlEspacio}
-        <Pasos actual={2} />
-        <Encabezado paso="Entrevista inicial" onSalir={salir} />
-        {avisoDemo}
-        <div className="space-y-2">
-          <div className="flex justify-between text-[12px] text-zinc-500 tabular">
-            <span>Sección {seccion + 1} de {SECCIONES.length}</span>
-            <span>{hechas} de {total} respondidas{guardado === 'guardando' ? ' · guardando…' : guardado === 'error' ? ' · no se pudo guardar' : guardado === 'guardado' ? ' · guardado' : ''}</span>
-          </div>
-          <div className="h-1 rounded-full bg-raised overflow-hidden">
-            <div className="h-full bg-emerald-400 transition-all duration-300" style={{ width: `${((seccion + 1) / SECCIONES.length) * 100}%` }} />
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          {volverAlEspacio}
+          <span className="text-[12.5px] text-zinc-500 tabular">{paso + 1} de {total}</span>
         </div>
+        <div className="h-1 rounded-full bg-raised overflow-hidden -mt-2">
+          <div className="h-full bg-emerald-400 transition-all duration-500" style={{ width: `${((paso + 1) / total) * 100}%` }} />
+        </div>
+        {avisoDemo}
 
-        <section style={vt('paso')} className="space-y-6">
-          <div>
-            <h2 className="text-[20px] font-semibold text-ink">{s.titulo}</h2>
-            <p className="text-[14px] text-zinc-500 mt-1">{s.descripcion}</p>
+        <section style={vt('paso')} className="min-h-[50vh] flex flex-col gap-6 pt-3">
+          <div className="space-y-2.5">
+            <p className="text-[12px] uppercase tracking-[0.09em] text-emerald-300/80">{p.seccion}<span className="normal-case tracking-normal text-zinc-500"> · {p.etiqueta || ''}</span></p>
+            <h1 className="text-[23px] xs:text-[27px] font-medium tracking-tight leading-snug text-ink">{p.titulo}</h1>
+            {primeraDeSeccion && <p className="text-[14px] text-zinc-500">{sec.descripcion}</p>}
           </div>
-          {s.preguntas.map((p) => (
-            <Pregunta key={p.id} p={p} valor={resp[p.id]} onCambio={(v) => cambiar(p.id, v)} onSalir={() => guardar(resp)} />
-          ))}
+          <Respuesta key={p.id} p={p} valor={resp[p.id]} onCambio={(v) => setResp((r) => ({ ...r, [p.id]: v }))} onListo={siguiente} />
         </section>
 
-        <div className="flex items-center justify-between gap-2 pt-2">
-          <button type="button" onClick={() => { guardar(resp); if (seccion === 0) ir('inicio', 'atras'); else animar(() => setSeccion(seccion - 1), 'atras'); }} className={btnSec}>
-            <ArrowLeft size={16} /> {seccion === 0 ? 'Mi espacio' : 'Anterior'}
-          </button>
-          {ultima ? (
-            <button type="button" onClick={async () => { if (await guardar(resp, true)) { setRecienEnviada(true); ir('inicio', 'atras'); } }} className={btnPri}>
-              <Check size={16} /> {completada ? 'Guardar cambios' : 'Enviar a mi terapeuta'}
-            </button>
-          ) : (
-            <button type="button" onClick={() => { guardar(resp); animar(() => setSeccion(seccion + 1), 'adelante'); }} className={btnPri}>
-              Siguiente <ArrowRight size={16} />
+        <div className="flex items-center gap-2">
+          {paso > 0 && <button type="button" onClick={() => mover(-1)} className={btnSec}><ArrowLeft size={16} /> Atrás</button>}
+          <div className="flex-1" />
+          {!lista && <button type="button" onClick={siguiente} className={btnSec}>{ultima ? 'Terminar' : 'Saltar'}</button>}
+          {lista && (
+            <button type="button" onClick={siguiente} className={btnPri}>
+              {ultima ? <><Check size={16} /> {completada ? 'Guardar cambios' : 'Enviar a mi terapeuta'}</> : <>Siguiente <ArrowRight size={16} /></>}
             </button>
           )}
         </div>
+        {estadoGuardado && <p className="text-center text-[12px] text-zinc-600 -mt-2">{estadoGuardado}</p>}
       </Marco>
     );
   }
 
   // Inicio de Mi espacio
-  const primeraPendiente = Math.max(0, SECCIONES.findIndex((s) => s.preguntas.some((p) => !respondida(p))));
   return (
     <Marco>
       <div ref={arriba} />
@@ -613,7 +646,7 @@ export default function PortalConsultante() {
             <span className="text-[12.5px] text-zinc-500 tabular">{completada ? 'Enviada' : `${hechas} de ${total}`}</span>
           </div>
           <div className="h-1 rounded-full bg-raised overflow-hidden"><div className="h-full bg-emerald-400" style={{ width: `${(hechas / total) * 100}%` }} /></div>
-          <button type="button" onClick={() => abrirSeccion(completada ? 0 : primeraPendiente)} className={`${btnPri} w-full`}>
+          <button type="button" onClick={() => animar(() => { const k = PREGUNTAS_ENTREVISTA.findIndex((x) => !respondida(x)); setPaso(completada || k < 0 ? 0 : k); setIntro(hechas === 0); setVista('entrevista'); setRecienEnviada(false); }, 'adelante', true)} className={`${btnPri} w-full`}>
             {completada ? 'Revisar mis respuestas' : hechas ? 'Continuar' : 'Empezar'} <ArrowRight size={16} />
           </button>
         </div>

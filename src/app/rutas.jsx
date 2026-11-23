@@ -13,6 +13,11 @@ import { flushSync } from 'react-dom';
 const Ctx = createContext(null);
 
 export const conTransiciones = typeof document !== 'undefined' && 'startViewTransition' in document;
+// Si una transición se interrumpe (por ejemplo, al abrirse el teclado del celular), el cambio ya se aplicó: no es un error.
+const transicion = (hacer) => {
+  const t = document.startViewTransition(hacer);
+  [t.ready, t.finished, t.updateCallbackDone].forEach((x) => x?.catch?.(() => {}));
+};
 const movimientoReducido = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 const aSegmentos = (r) => (Array.isArray(r) ? r : String(r).replace(/^#?\/?/, '').split('/')).filter(Boolean).map(String);
@@ -43,7 +48,7 @@ export function RutaProvider({ inicial = ['agenda'], children }) {
       window.scrollTo(0, 0);
     };
     document.documentElement.dataset.dir = d;
-    if (conTransiciones && !movimientoReducido()) document.startViewTransition(hacer);
+    if (conTransiciones && !movimientoReducido()) transicion(hacer);
     else hacer();
   }, []);
 
@@ -99,6 +104,6 @@ export function animar(cambio, direccion = 'adelante', todo = false) {
   const hacer = () => flushSync(cambio);
   // Solo el paso se desliza (`adelante-paso`), salvo que cambie toda la pantalla (`todo`)
   document.documentElement.dataset.dir = todo ? direccion : `${direccion}-paso`;
-  if (conTransiciones && !movimientoReducido()) document.startViewTransition(hacer);
+  if (conTransiciones && !movimientoReducido()) transicion(hacer);
   else hacer();
 }
