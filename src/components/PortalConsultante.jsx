@@ -426,6 +426,11 @@ export default function PortalConsultante() {
         <button type="button" onClick={() => { setModo(crear ? 'entrar' : 'crear'); setError(''); }} className="w-full text-center text-[14px] text-zinc-400 hover:text-ink">
           {crear ? <>¿Ya tienes cuenta? <span className="text-emerald-300">Entra</span></> : <>¿Primera vez? <span className="text-emerald-300">Crea tu cuenta</span></>}
         </button>
+        {hayNube && (
+          <button type="button" onClick={() => empezarDemo()} className="w-full text-center text-[13px] text-zinc-500 hover:text-ink">
+            Ver una demostración sin crear cuenta
+          </button>
+        )}
       </Marco>
     );
   }

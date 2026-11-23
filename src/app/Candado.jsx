@@ -6,7 +6,7 @@ import { Campo, inp, btnPri } from './ui';
 import { volverAlInicio } from './modo';
 
 /** Candado de la app: solo la dueña entra al consultorio. Los consultantes tienen su propio acceso. */
-export default function Candado({ onEntrar }) {
+export default function Candado({ onEntrar, onDemo }) {
   const [f, setF] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -45,6 +45,11 @@ export default function Candado({ onEntrar }) {
         <Campo etiqueta="Contraseña"><input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} autoComplete="current-password" className={inp} /></Campo>
         {error && <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-[13.5px] text-rose-200">{error}</p>}
         <button type="submit" disabled={cargando} className={`${btnPri} w-full`}>{cargando ? 'Abriendo…' : 'Entrar'} <ArrowRight size={16} /></button>
+        {onDemo && (
+          <button type="button" onClick={onDemo} className="w-full h-11 rounded-full text-[14px] text-zinc-300 ring-1 ring-line hover:text-ink hover:ring-zinc-700 transition active:scale-[.98]">
+            Ver demostración sin cuenta
+          </button>
+        )}
       </form>
     </div>
   );

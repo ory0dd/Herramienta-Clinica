@@ -51,6 +51,9 @@ function Consultorio() {
   const [patients, setPatients] = useState(getPatients);
   const [pacientePrueba, setPacientePrueba] = useState(null);
   const [nubeEstado, setNubeEstado] = useState(() => estadoNube().estado);
+  // Demostración: recorrer la app con datos de ejemplo, sin cuenta. Nada llega a la base de datos.
+  const [demo, setDemo] = useState(() => { try { return sessionStorage.getItem('aniima_demo') === '1'; } catch (_) { return false; } });
+  const marcarDemo = (v) => { try { if (v) sessionStorage.setItem('aniima_demo', '1'); else sessionStorage.removeItem('aniima_demo'); } catch (_) { /* nada */ } setDemo(v); };
 
   const refrescar = () => setPatients(getPatients());
   const entrar = (t) => { setTherapist(t); refrescar(); };
@@ -79,6 +82,7 @@ function Consultorio() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const salir = async () => {
+    marcarDemo(false);
     const saliente = getActiveTherapist();
     if (saliente?.nube) {
       await salirNube();
@@ -118,12 +122,22 @@ function Consultorio() {
   }
 
   // Con base de datos, el consultorio es solo de su dueña: sin sesión se muestra el candado
-  if (hayNube && !therapist?.nube) return <Candado onEntrar={(t) => { entrar(t); navegar(['agenda', 'hoy'], { reemplazar: true }); }} />;
+  const enDemo = demo && !therapist?.nube;
+  if (hayNube && !therapist?.nube && !demo) {
+    return <Candado onEntrar={(t) => { marcarDemo(false); entrar(t); navegar(['agenda', 'hoy'], { reemplazar: true }); }}
+      onDemo={() => { logoutTherapist(); entrar(getActiveTherapist()); marcarDemo(true); navegar(['agenda', 'hoy'], { reemplazar: true }); }} />;
+  }
 
   return (
     <div className="min-h-screen bg-base text-ink font-sans lg:flex">
       <Navegacion therapist={therapist} estado={nubeEstado} onSalir={salir} />
       <main style={vt('contenido')} className="flex-1 min-w-0 px-4 xs:px-5 sm:px-8 lg:px-12 pt-5 lg:pt-10 pb-28 bajo:pb-20 lg:pb-12">
+        {enDemo && (
+          <div className="max-w-5xl mx-auto mb-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
+            <p className="text-[13px] text-amber-200">Demostración con datos de ejemplo. Nada se guarda en el consultorio.</p>
+            <button type="button" onClick={salir} className="text-[13px] font-medium text-amber-100 hover:text-ink">Salir</button>
+          </div>
+        )}
         {pantalla}
       </main>
     </div>
