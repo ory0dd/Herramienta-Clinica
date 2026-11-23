@@ -82,7 +82,7 @@ function LogoGoogle() {
 
 const traducirError = (error) => {
   const m = error?.message || '';
-  if (/row-level security/i.test(m) || error?.code === '42501') return 'El código de invitación no es correcto. Pídeselo a tu terapeuta.';
+  if (/row-level security/i.test(m) || error?.code === '42501') return 'No se pudo crear tu registro. Avísale a tu terapeuta (quizá falta actualizar su base de datos).';
   if (/already registered|already been registered/i.test(m)) return 'Ese correo ya tiene cuenta. Entra con “Ya tengo cuenta”.';
   if (/duplicate key/i.test(m) || error?.code === '23505') return 'Ese nombre de usuario ya está ocupado. Prueba con otro.';
   if (/Invalid login credentials/i.test(m)) return 'Correo o contraseña incorrectos.';
@@ -212,7 +212,7 @@ export default function PortalConsultante() {
   const [registro, setRegistro] = useState(undefined);   // undefined: cargando · null: le falta registrarse
   const [consentimiento, setConsentimiento] = useState(undefined);
   const [modo, setModo] = useState('crear');
-  const [f, setF] = useState({ correo: '', password: '', alias: '', codigo: '' });
+  const [f, setF] = useState({ correo: '', password: '', alias: '' });
   const [firma, setFirma] = useState({ nombre: '', acepto: false, metodo: 'escrito', audio: null });
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -272,7 +272,7 @@ export default function PortalConsultante() {
   useEffect(() => { arriba.current?.scrollIntoView({ block: 'start' }); }, [paso, intro, consentimiento, vista]);
 
   const registrar = async (correo) => {
-    const { error: e } = await nube.from('consultantes').insert({ usuario: usuarioDe(correo), alias: f.alias.trim(), codigo: f.codigo.trim() });
+    const { error: e } = await nube.from('consultantes').insert({ usuario: usuarioDe(correo), alias: f.alias.trim() });
     if (e) throw e;
     await cargarRegistro((await nube.auth.getUser()).data.user);
   };
@@ -297,7 +297,6 @@ export default function PortalConsultante() {
     if (f.password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.');
     if (modo === 'crear') {
       if (f.alias.trim().length < 2) return setError('Escribe cómo quieres que te digan.');
-      if (f.codigo.trim().length < 4) return setError('Escribe el código de invitación que te dio tu terapeuta.');
     }
     if (!hayNube) { empezarDemo(f.alias.trim()); return undefined; }
     setCargando(true);
@@ -323,7 +322,6 @@ export default function PortalConsultante() {
     e.preventDefault();
     setError('');
     if (f.alias.trim().length < 2) return setError('Escribe cómo quieres que te digan.');
-    if (f.codigo.trim().length < 4) return setError('Escribe el código de invitación que te dio tu terapeuta.');
     setCargando(true);
     try { await registrar(sesion.email || ''); } catch (err) { setError(traducirError(err)); } finally { setCargando(false); }
     return undefined;
@@ -375,7 +373,7 @@ export default function PortalConsultante() {
     if (demo) { setDemo(false); }
     else await nube.auth.signOut();
     setResp({}); setPaso(0); setIntro(false); setCompletada(false); setVista('inicio'); setRecienEnviada(false); setConsentimiento(undefined);
-    setF({ correo: '', password: '', alias: '', codigo: '' }); setFirma({ nombre: '', acepto: false, metodo: 'escrito', audio: null });
+    setF({ correo: '', password: '', alias: '' }); setFirma({ nombre: '', acepto: false, metodo: 'escrito', audio: null });
   };
 
   // ---------- Pantallas ----------
@@ -422,12 +420,9 @@ export default function PortalConsultante() {
             <input id="pc-pass" type="password" autoComplete={crear ? 'new-password' : 'current-password'} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="Mínimo 6 caracteres" className={inp} />
           </label>
           {crear && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               <label className={etiqueta} htmlFor="pc-alias">¿Cómo quieres que te digan?
                 <input id="pc-alias" value={f.alias} onChange={(e) => setF({ ...f, alias: e.target.value })} placeholder="Tu nombre o un alias" className={inp} />
-              </label>
-              <label className={etiqueta} htmlFor="pc-codigo">Código de invitación
-                <input id="pc-codigo" autoCapitalize="characters" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} placeholder="Te lo da tu terapeuta" className={inp} />
               </label>
             </div>
           )}
@@ -455,13 +450,10 @@ export default function PortalConsultante() {
       <Marco>
         <Pasos actual={0} />
         <Encabezado paso="Casi listo" onSalir={salir} />
-        <p className="text-[15px] text-zinc-400 -mt-2">Solo falta conectarte con tu terapeuta.</p>
+        <p className="text-[15px] text-zinc-400 -mt-2">Solo falta decirnos cómo quieres que te digan.</p>
         <form onSubmit={completarRegistro} className="space-y-4">
           <label className={etiqueta} htmlFor="pc-alias2">¿Cómo quieres que te digan?
             <input id="pc-alias2" value={f.alias} onChange={(e) => setF({ ...f, alias: e.target.value })} className={inp} />
-          </label>
-          <label className={etiqueta} htmlFor="pc-codigo2">Código de invitación
-            <input id="pc-codigo2" autoCapitalize="characters" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} placeholder="Te lo da tu terapeuta" className={inp} />
           </label>
           {cajaError}
           <button type="submit" disabled={cargando} className={`${btnPri} w-full`}>{cargando ? 'Un momento…' : 'Continuar'} <ArrowRight size={17} /></button>

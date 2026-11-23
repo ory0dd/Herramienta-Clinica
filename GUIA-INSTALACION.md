@@ -113,13 +113,12 @@ Esta línea es la que hace que solo tú puedas abrir el consultorio, aunque algu
 
 ## Paso 9 · Invita a tus consultantes
 
-1. En tu consultorio, entra a la pestaña **Entrevistas**.
-2. Escribe un **código de invitación** (por ejemplo `CONSULTA2026`) y da clic en **Guardar código**.
-3. Copia el link que aparece ahí y mándaselo a tu consultante junto con el código.
-4. Tu consultante elige **Consultante**, crea su cuenta con su correo (o con Google, si lo activas) y confirma el consentimiento informado: con su nombre escrito o grabando su voz. Al confirmar pasa directo a su entrevista, que puede llenar y retomar por secciones. También descarga la constancia de su consentimiento.
-5. Tú ves la confirmación (y escuchas el audio, si lo grabó) y las respuestas en **Entrevistas**. Desde ahí creas su expediente con un toque: se llena con lo que respondió y queda vinculado.
+Tu app tiene dos lados: **Clínico** (solo tú, como administradora) y **Consultante** (cualquier persona con tu link). No hace falta ningún código.
 
-Puedes cambiar el código cuando quieras. Los consultantes que ya se registraron no lo necesitan otra vez.
+1. En tu consultorio, entra a **Entrevistas → Invitar** y da clic en **Copiar mensaje**.
+2. Mándaselo a tu consultante por WhatsApp o correo.
+3. Tu consultante abre el link, elige **Consultante** y crea su cuenta con su correo (o con Google, si lo activas). Confirma el consentimiento informado con su nombre escrito o grabando su voz y pasa directo a su entrevista, que puede llenar y retomar a su ritmo. También descarga la constancia de su consentimiento.
+4. Tú ves a todas las personas registradas en **Entrevistas**: su confirmación (y su audio, si lo grabó) y sus respuestas. Desde ahí creas su expediente con un toque. Cada consultante solo ve lo suyo.
 
 ### Opcional: conectar Google Calendar
 
@@ -148,7 +147,7 @@ Tus sesiones de las próximas cuatro semanas aparecen en un calendario aparte de
 | "No se pudo conectar con la base de datos" | Revisa que las dos variables de Railway estén bien escritas y vuelve a dar Deploy. |
 | "Esta cuenta no es la dueña del consultorio" | Corre la línea del paso 8 con el mismo correo con el que creaste tu acceso. |
 | El consultante ve "tu terapeuta debe apagar Confirm email" | Haz el paso 4. |
-| El consultante ve "el código de invitación no es correcto" | Revisa el código en la pestaña Entrevistas y vuelve a mandárselo. |
+| El consultante ve "No se pudo crear tu registro" | Vuelve a correr el esquema completo (paso 3): las versiones anteriores pedían un código de invitación. |
 | Supabase dice que el correo de un consultante no es válido | Revisa que lo haya escrito bien. Si entró antes con nombre de usuario (sin correo), en Railway agrega la variable `VITE_DOMINIO_USUARIOS` con un dominio tuyo y vuelve a dar Deploy. |
 | "No se pudo subir tu audio" o "column metodo does not exist" | Vuelve a correr el esquema completo (paso 3). |
 | Google dice "Error 400: redirect_uri_mismatch" u "origin_mismatch" al conectar el calendario | En Google Cloud, revisa que el link de tu consultorio esté en **Orígenes de JavaScript autorizados**, exactamente igual y sin `/` al final. |

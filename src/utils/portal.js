@@ -7,13 +7,12 @@ import { nube, mensajeError } from './nube';
 import { SECCIONES_ENTREVISTA, indicaRiesgo } from '../data/entrevista';
 
 export async function cargarPortal() {
-  const [c, e, k, a] = await Promise.all([
+  const [c, e, k] = await Promise.all([
     nube.from('consultantes').select('id, usuario, alias, creado').order('creado', { ascending: false }),
     nube.from('entrevistas').select('consultante, respuestas, completada, actualizada'),
     nube.from('consentimientos').select('consultante, version, nombre_firma, aceptado_en, metodo, audio'),
-    nube.from('ajustes_privados').select('valor').eq('clave', 'codigo_invitacion').maybeSingle(),
   ]);
-  const falla = c.error || e.error || k.error || a.error;
+  const falla = c.error || e.error || k.error;
   if (falla) throw new Error(mensajeError(falla));
   const entrevistas = new Map(e.data.map((x) => [x.consultante, x]));
   const consentimientos = new Map(k.data.map((x) => [x.consultante, x]));
@@ -22,13 +21,7 @@ export async function cargarPortal() {
       const entrevista = entrevistas.get(x.id) || null;
       return { ...x, entrevista, consentimiento: consentimientos.get(x.id) || null, riesgo: indicaRiesgo(entrevista?.respuestas) };
     }),
-    codigo: a.data?.valor || '',
   };
-}
-
-export async function guardarCodigo(valor) {
-  const { error } = await nube.from('ajustes_privados').upsert({ clave: 'codigo_invitacion', valor }, { onConflict: 'clave' });
-  if (error) throw new Error(mensajeError(error));
 }
 
 export const contestadas = (respuestas = {}) =>

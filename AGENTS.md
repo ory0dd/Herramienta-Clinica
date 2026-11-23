@@ -62,7 +62,7 @@ Paso 7 de la guía: Account ID y token con la plantilla **Workers AI**. Esos dos
 Para comprobar: en **Cuadernos**, junto al nombre de un caso debe salir el punto verde.
 
 ### 6. Invitar consultantes
-Paso 9 de la guía: en **Entrevistas** guardar un código de invitación y compartir el link. Que haga una prueba desde otro navegador o su celular, eligiendo **Consultante**.
+Paso 9 de la guía: en **Entrevistas → Invitar** copiar el mensaje con el link y mandarlo. No hay código: cualquiera con el link puede crear su cuenta de consultante, y solo la terapeuta (administradora) ve a todos. Que haga una prueba desde otro navegador o su celular, eligiendo **Consultante**.
 
 ### 7. Google (opcional)
 - **Google Calendar:** sección "Conectar Google Calendar" de la guía. El ID de cliente es público; puedes ayudarle a pegarlo en Railway como `VITE_GOOGLE_CLIENT_ID`. El origen autorizado debe ser exactamente su link de Railway.

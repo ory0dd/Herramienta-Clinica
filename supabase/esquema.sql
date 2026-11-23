@@ -5,7 +5,7 @@
 -- Quién puede ver qué:
 --   · Terapeuta (lado clínico): solo las cuentas que agregues a la tabla `terapeutas` (paso 7, abajo).
 --     Ve y guarda sus expedientes, Mi lista y pagos, y lee las entrevistas de sus consultantes.
---   · Consultante: crea su propia cuenta con su correo (o Google) y el código de invitación
+--   · Consultante: crea su propia cuenta con su correo (o Google), sin código
 --     que le das. Solo ve y edita su propia entrevista.
 -- =====================================================================
 
@@ -18,7 +18,7 @@ create table if not exists public.terapeutas (
 );
 alter table public.terapeutas enable row level security;
 
--- 2. Ajustes privados (por ahora, el código de invitación para consultantes).
+-- 2. Ajustes privados de la terapeuta (reservado para ajustes futuros).
 create table if not exists public.ajustes_privados (
   clave text primary key,
   valor text not null
@@ -77,21 +77,23 @@ create policy "terapeuta actualiza sus datos" on public.datos_terapeuta for upda
 create policy "terapeuta borra sus datos" on public.datos_terapeuta for delete
   using (dueno = auth.uid() and public.es_terapeuta());
 
--- 4. Consultantes: cada quien crea su registro con un alias y el código de invitación.
+-- 4. Consultantes: cada quien crea su registro con un alias. Solo ve lo suyo; la terapeuta ve a todos.
 create table if not exists public.consultantes (
   id uuid primary key default auth.uid() references auth.users (id) on delete cascade,
   usuario text not null unique,
   alias text not null check (char_length(alias) between 2 and 40),
-  codigo text not null,
+  codigo text not null default '',
   creado timestamptz not null default now()
 );
 alter table public.consultantes enable row level security;
 
+-- Antes se pedía un código de invitación; ya no (instalaciones anteriores: la columna queda opcional)
+alter table public.consultantes alter column codigo set default '';
 drop policy if exists "consultante crea su registro" on public.consultantes;
 drop policy if exists "consultante y terapeuta leen" on public.consultantes;
 drop policy if exists "consultante cambia su alias" on public.consultantes;
 create policy "consultante crea su registro" on public.consultantes for insert
-  with check (id = auth.uid() and public.codigo_valido(codigo));
+  with check (id = auth.uid());
 create policy "consultante y terapeuta leen" on public.consultantes for select
   using (id = auth.uid() or public.es_terapeuta());
 create policy "consultante cambia su alias" on public.consultantes for update

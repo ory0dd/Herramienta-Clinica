@@ -3,7 +3,7 @@ import { Copy, Check, RefreshCw, AlertTriangle, UserPlus, Sparkles, FolderPlus, 
 import { addPatient } from '../../utils/storage';
 import { ConstanciaConsentimiento, BotonImprimir, AudioConsentimiento } from '../Documento';
 import { hayNube } from '../../utils/nube';
-import { cargarPortal, guardarCodigo, contestadas } from '../../utils/portal';
+import { cargarPortal, contestadas } from '../../utils/portal';
 import { SECCIONES_ENTREVISTA, PREGUNTAS_ENTREVISTA } from '../../data/entrevista';
 import { useRuta, vt } from '../rutas';
 import { Pantalla, Seccion, FilaEnlace, Vacio, Campo, inp, btnPri, btnSec } from '../ui';
@@ -75,9 +75,6 @@ function ListaEntrevistas({ portal }) {
       )}>
       <div className="max-w-3xl space-y-4">
         {portal.error && <p className="text-[13.5px] text-rose-300">{portal.error}</p>}
-        {portal.datos && !portal.datos.codigo && (
-          <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[14px] text-amber-100">Todavía no tienes código de invitación. <button type="button" onClick={() => navegar(['entrevistas', 'invitar'])} className="underline">Créalo aquí</button>.</p>
-        )}
         <Seccion>
           <div className="divide-y divide-line">
             {lista.length === 0 && <Vacio>{portal.cargando ? 'Cargando…' : 'Todavía nadie se ha registrado.'}</Vacio>}
@@ -197,40 +194,21 @@ function Constancia({ portal, id }) {
   );
 }
 
-function Invitar({ portal }) {
-  const [codigo, setCodigo] = useState(portal.datos?.codigo || '');
-  const [guardadoCodigo, setGuardadoCodigo] = useState(portal.datos?.codigo || '');
+function Invitar() {
   const [copiado, setCopiado] = useState(false);
-  const [error, setError] = useState('');
   const link = `${window.location.origin}${window.location.pathname}#consultante`;
-  useEffect(() => { if (portal.datos?.codigo && !guardadoCodigo) { setCodigo(portal.datos.codigo); setGuardadoCodigo(portal.datos.codigo); } }, [portal.datos]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const guardar = async (e) => {
-    e.preventDefault();
-    const v = codigo.trim();
-    if (v.length < 4) { setError('El código debe tener al menos 4 caracteres.'); return; }
-    try { await guardarCodigo(v); setGuardadoCodigo(v); setError(''); portal.setDatos({ ...(portal.datos || { lista: [] }), codigo: v }); } catch (err) { setError(err.message); }
-  };
-  const copiar = () => navigator.clipboard?.writeText(`Para tu entrevista inicial entra aquí: ${link}\nTu código de invitación es: ${guardadoCodigo}`)
+  const mensaje = `Para tu entrevista inicial entra aquí: ${link}\nElige "Consultante" y crea tu cuenta.`;
+  const copiar = () => navigator.clipboard?.writeText(mensaje)
     .then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 1500); }).catch(() => {});
 
   return (
-    <Pantalla atras={['entrevistas']} etiquetaAtras="Entrevistas" titulo="Invitar" subtitulo="Cada persona crea su usuario, firma el consentimiento y llena su entrevista desde su celular." ancho="max-w-2xl">
-      <div className="space-y-6">
-        <form onSubmit={guardar} className="space-y-3">
-          <Campo etiqueta="Código de invitación" ayuda="Puedes cambiarlo cuando quieras. Quienes ya se registraron no lo necesitan otra vez.">
-            <input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="ej. CONSULTA2026" className={inp} />
-          </Campo>
-          <button type="submit" disabled={codigo.trim() === guardadoCodigo} className={btnPri}>Guardar código</button>
-          {error && <p className="text-[13.5px] text-rose-300">{error}</p>}
-        </form>
-        <Seccion titulo="Mensaje para enviar">
-          <div className="p-4 space-y-3">
-            <p className="text-[14.5px] leading-relaxed text-zinc-300 break-all">Para tu entrevista inicial entra aquí: <span className="text-ink select-all">{link}</span><br />Tu código de invitación es: <span className="text-ink">{guardadoCodigo || '—'}</span></p>
-            <button type="button" disabled={!guardadoCodigo} onClick={copiar} className={btnSec}>{copiado ? <><Check size={15} /> Copiado</> : <><Copy size={15} /> Copiar mensaje</>}</button>
-          </div>
-        </Seccion>
-      </div>
+    <Pantalla atras={['entrevistas']} etiquetaAtras="Entrevistas" titulo="Invitar" subtitulo="Mándale este link: crea su cuenta, firma el consentimiento y llena su entrevista desde su celular." ancho="max-w-2xl">
+      <Seccion titulo="Mensaje para enviar">
+        <div className="p-5 space-y-4">
+          <p className="text-[14.5px] leading-relaxed text-zinc-300 break-all">Para tu entrevista inicial entra aquí: <span className="text-ink select-all">{link}</span><br />Elige "Consultante" y crea tu cuenta.</p>
+          <button type="button" onClick={copiar} className={btnPri}>{copiado ? <><Check size={15} /> Copiado</> : <><Copy size={15} /> Copiar mensaje</>}</button>
+        </div>
+      </Seccion>
     </Pantalla>
   );
 }
