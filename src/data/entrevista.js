@@ -9,9 +9,8 @@ export const SECCIONES_ENTREVISTA = [
   {
     id: 'sobre-ti',
     titulo: 'Sobre ti',
-    descripcion: 'Para conocerte un poco. Puedes usar un alias.',
+    descripcion: 'Para conocerte un poco.',
     preguntas: [
-      { id: 'nombre_preferido', tipo: 'corto', etiqueta: 'Tu nombre', titulo: '¿Cómo te gusta que te digan?', placeholder: 'Tu nombre o el alias con el que te sientas más cómodo' },
       { id: 'edad', tipo: 'corto', etiqueta: 'Tu edad', titulo: '¿Cuántos años tienes?', placeholder: 'Ej. 29' },
       { id: 'ocupacion', tipo: 'corto', etiqueta: 'Tus días', titulo: '¿A qué le dedicas tu tiempo en el día a día?', placeholder: 'Ej. "Estudio diseño y hago música", "Trabajo en ventas", "Ando buscando qué rumbo tomar"' },
       { id: 'estado_civil', tipo: 'opciones', etiqueta: 'Pareja', titulo: '¿Cuál es tu situación de pareja?', opciones: ['Soltera/o', 'En una relación', 'Casada/o o en unión libre', 'Separada/o o divorciada/o', 'Viuda/o', 'Prefiero no decir'] },
