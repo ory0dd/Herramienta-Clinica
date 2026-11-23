@@ -47,7 +47,7 @@ export default function Candado({ onEntrar, onDemo }) {
         <button type="submit" disabled={cargando} className={`${btnPri} w-full`}>{cargando ? 'Abriendo…' : 'Entrar'} <ArrowRight size={16} /></button>
         {onDemo && (
           <button type="button" onClick={onDemo} className="w-full h-11 rounded-full text-[14px] text-zinc-300 ring-1 ring-line hover:text-ink hover:ring-zinc-700 transition active:scale-[.98]">
-            Ver demostración sin cuenta
+            Iniciar sin cuenta
           </button>
         )}
       </form>
