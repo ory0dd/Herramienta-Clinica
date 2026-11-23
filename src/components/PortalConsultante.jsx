@@ -277,7 +277,7 @@ export default function PortalConsultante() {
     await cargarRegistro((await nube.auth.getUser()).data.user);
   };
 
-  const empezarDemo = (alias) => { setDemo(true); setRegistro({ alias: alias || 'consultante de ejemplo' }); setConsentimiento(null); };
+  const empezarDemo = (alias) => { setDemo(true); setRegistro({ alias: alias || 'nube_lenta' }); setConsentimiento(null); };
 
   const conGoogle = async () => {
     setError('');

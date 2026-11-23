@@ -225,21 +225,27 @@ const leer = (nombre, def) => {
 };
 const escribir = (nombre, valor) => guardarLocal(clave(nombre), JSON.stringify(valor));
 
-/** Lista de ejemplo, relativa a hoy, con alias ficticios para que el panel no empiece vacío. */
+/** Lista de ejemplo, relativa a hoy, con nombres de usuario inventados para que el panel no empiece vacío. */
 function ejemplo() {
   const hoy = new Date();
   const dia = (n) => fmtFecha(addDias(hoy, n));
   return [
-    { id: 'l-01', alias: 'C-01', telefono: '', proxima_sesion: dia(0), hora_sesion: '18:00', frecuencia_dias: 7, modo: 'fijo', activo: true },
-    { id: 'l-02', alias: 'C-02', telefono: '', proxima_sesion: dia(1), hora_sesion: '16:00', frecuencia_dias: 7, modo: 'fijo', activo: true },
-    { id: 'l-03', alias: 'C-03', telefono: '', proxima_sesion: dia(2), hora_sesion: '12:00', frecuencia_dias: 14, modo: 'fijo', activo: true },
-    { id: 'l-04', alias: 'C-04', telefono: '', proxima_sesion: dia(4), hora_sesion: '19:30', frecuencia_dias: 7, modo: 'fijo', activo: true },
-    { id: 'l-05', alias: 'C-05', telefono: '', proxima_sesion: dia(3), hora_sesion: '10:00', frecuencia_dias: 0, modo: 'preguntar', activo: true },
+    { id: 'l-01', alias: 'Polilla 8', telefono: '', proxima_sesion: dia(0), hora_sesion: '18:00', frecuencia_dias: 7, modo: 'fijo', activo: true },
+    { id: 'l-02', alias: 'mango_azul', telefono: '', proxima_sesion: dia(1), hora_sesion: '16:00', frecuencia_dias: 7, modo: 'fijo', activo: true },
+    { id: 'l-03', alias: 'Atlas', telefono: '', proxima_sesion: dia(2), hora_sesion: '12:00', frecuencia_dias: 14, modo: 'fijo', activo: true },
+    { id: 'l-04', alias: 'Café Frío', telefono: '', proxima_sesion: dia(4), hora_sesion: '19:30', frecuencia_dias: 7, modo: 'fijo', activo: true },
+    { id: 'l-05', alias: 'lluvia.lenta', telefono: '', proxima_sesion: dia(3), hora_sesion: '10:00', frecuencia_dias: 0, modo: 'preguntar', activo: true },
   ];
 }
 
 // Solo la cuenta de ejemplo arranca con personas de muestra
-export const getLista = () => leer('clientes', () => (getActiveTherapist()?.isDemo ? ejemplo() : []));
+// Alias de ejemplo: nombres de usuario inventados (los de antes eran códigos C-01…; se actualizan solos)
+const ALIAS_EJEMPLO = { 'l-01': 'Polilla 8', 'l-02': 'mango_azul', 'l-03': 'Atlas', 'l-04': 'Café Frío', 'l-05': 'lluvia.lenta' };
+export const getLista = () => {
+  const demo = getActiveTherapist()?.isDemo;
+  const lista = leer('clientes', () => (demo ? ejemplo() : []));
+  return demo ? lista.map((c) => (ALIAS_EJEMPLO[c.id] && /^C-0\d$/.test(c.alias) ? { ...c, alias: ALIAS_EJEMPLO[c.id] } : c)) : lista;
+};
 export const saveLista = (lista) => escribir('clientes', lista);
 export const getPagos = () => leer('pagos', () => []);
 export const savePagos = (pagos) => escribir('pagos', pagos);

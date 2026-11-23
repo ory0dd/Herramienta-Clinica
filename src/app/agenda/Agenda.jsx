@@ -520,7 +520,7 @@ function PersonaForm({ ag, id }) {
       titulo={existente ? 'Editar persona' : 'Agregar persona'} ancho="max-w-2xl">
       <form onSubmit={guardar} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Campo etiqueta="Alias o código" ayuda="No uses el nombre completo."><input value={form.alias} onChange={(e) => setForm({ ...form, alias: e.target.value })} placeholder="C-06" className={inp} /></Campo>
+          <Campo etiqueta="Alias o código" ayuda="No uses el nombre completo."><input value={form.alias} onChange={(e) => setForm({ ...form, alias: e.target.value })} placeholder="Ej. luna_azul" className={inp} /></Campo>
           <Campo etiqueta="WhatsApp" ayuda={form.telefono && !numeroWhatsApp(form.telefono) ? 'Revisa el número: 10 dígitos (México) o con lada de país.' : 'Para mandarle el aviso con un botón. 10 dígitos (México) o con lada de país.'}>
             <input value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} inputMode="tel" autoComplete="off" autoFocus={!!existente && !numeroWhatsApp(existente.telefono)} placeholder="81 0000 0000" className={inp} />
           </Campo>

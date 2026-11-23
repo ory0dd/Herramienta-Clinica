@@ -47,7 +47,7 @@ const DEFAULT_PATIENTS = [
   {
     id: 'pac-001',
     codigo: 'C-01',
-    nombre: 'Consultante A',
+    nombre: 'Polilla 8',
     edad: 34,
     genero: 'Masculino',
     ocupacion: 'Sector tecnológico',
@@ -64,7 +64,7 @@ const DEFAULT_PATIENTS = [
   {
     id: 'pac-002',
     codigo: 'C-02',
-    nombre: 'Consultante B',
+    nombre: 'mango_azul',
     edad: 28,
     genero: 'Femenino',
     ocupacion: 'Sector creativo',
@@ -81,7 +81,7 @@ const DEFAULT_PATIENTS = [
 ];
 
 // Nombres de ejemplo de versiones anteriores que se cambian por alias al leer
-const NOMBRES_VIEJOS = ['Carlos E. Mendoza', 'Elena R. Garza'];
+const NOMBRES_VIEJOS = ['Carlos E. Mendoza', 'Elena R. Garza', 'Consultante A', 'Consultante B'];
 const limpiarEjemplo = (p) => {
   if (!NOMBRES_VIEJOS.includes(p.nombre)) return p;
   const nuevo = DEFAULT_PATIENTS.find((d) => d.id === p.id);
@@ -212,7 +212,7 @@ const DEFAULT_APPOINTMENTS = [
   {
     id: 'apt-01',
     patientId: 'pac-001',
-    pacienteNombre: 'Consultante A (C-01)',
+    pacienteNombre: 'Polilla 8 (C-01)',
     fecha: new Date().toISOString().split('T')[0],
     hora: '17:00',
     modalidad: 'Presencial',
@@ -223,7 +223,7 @@ const DEFAULT_APPOINTMENTS = [
   {
     id: 'apt-02',
     patientId: 'pac-002',
-    pacienteNombre: 'Consultante B (C-02)',
+    pacienteNombre: 'mango_azul (C-02)',
     fecha: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     hora: '18:30',
     modalidad: 'Online (Videollamada)',
