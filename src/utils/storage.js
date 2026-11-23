@@ -5,6 +5,7 @@
  */
 
 import { guardarLocal } from './nube';
+import { PACIENTES_DEMO, NOTAS_DEMO, PRUEBAS_DEMO, INFORMES_DEMO } from '../data/demo';
 
 const STORAGE_PREFIX = 'oasis_clinico_';
 
@@ -42,43 +43,9 @@ const getScopedKey = (keyName) => {
   return `${STORAGE_PREFIX}${userId}_${keyName}`;
 };
 
-// Pacientes iniciales de muestra para que el consultorio no inicie vacío
-const DEFAULT_PATIENTS = [
-  {
-    id: 'pac-001',
-    codigo: 'C-01',
-    nombre: 'Polilla 8',
-    edad: 34,
-    genero: 'Masculino',
-    ocupacion: 'Sector tecnológico',
-    telefono: '',
-    contactoEmergencia: 'Familiar de contacto (dato guardado aparte)',
-    motivoConsulta: 'Crisis de angustia y reactividad fisiológica (taquicardia, insomnio de conciliación) asociadas a sobrecarga laboral.',
-    antecedentes: 'Sin historial psiquiátrico previo. Episodio depresivo leve en 2021 tras duelo.',
-    diagnostico: 'F41.0 Trastorno de Pánico (CIE-11: 6B01)',
-    estado: 'Activo',
-    fechaIngreso: '2026-10-12',
-    frecuencia: 'Semanal',
-    honorarios: 900
-  },
-  {
-    id: 'pac-002',
-    codigo: 'C-02',
-    nombre: 'mango_azul',
-    edad: 28,
-    genero: 'Femenino',
-    ocupacion: 'Sector creativo',
-    telefono: '',
-    contactoEmergencia: 'Familiar de contacto (dato guardado aparte)',
-    motivoConsulta: 'Dificultad en regulación afectiva, rumiación obsesiva y autoexigencia extrema ante evaluaciones de rendimiento.',
-    antecedentes: 'Familia con alta rigidez normativa. Rasgos perfeccionistas.',
-    diagnostico: 'F41.1 Trastorno de Ansiedad Generalizada',
-    estado: 'Activo',
-    fechaIngreso: '2026-11-03',
-    frecuencia: 'Quincenal',
-    honorarios: 950
-  }
-];
+// Pacientes de la demostración (con su historia completa en src/data/demo.js)
+const DEFAULT_PATIENTS = PACIENTES_DEMO;
+const esDemo = () => !!getActiveTherapist()?.isDemo;
 
 // Nombres de ejemplo de versiones anteriores que se cambian por alias al leer
 const NOMBRES_VIEJOS = ['Carlos E. Mendoza', 'Elena R. Garza', 'Consultante A', 'Consultante B'];
@@ -91,7 +58,13 @@ const limpiarEjemplo = (p) => {
 export const getPatients = () => {
   try {
     const raw = localStorage.getItem(getScopedKey('patients'));
-    if (raw) return JSON.parse(raw).map(limpiarEjemplo);
+    if (raw) {
+      const lista = JSON.parse(raw).map(limpiarEjemplo);
+      // En la demo, agrega los expedientes de ejemplo nuevos que aún no estén
+      if (!esDemo()) return lista;
+      const faltan = DEFAULT_PATIENTS.filter((d) => !lista.some((p) => p.id === d.id));
+      return faltan.length ? [...lista, ...faltan] : lista;
+    }
     // Si no existen aún, guardar y devolver los de muestra
     // Solo la cuenta de ejemplo arranca con pacientes de muestra; una cuenta real empieza vacía
     const base = getActiveTherapist().isDemo ? DEFAULT_PATIENTS : [];
@@ -142,7 +115,7 @@ export const getPatientNotes = (patientId) => {
     const raw = localStorage.getItem(getScopedKey(`notes_${patientId}`));
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return [];
+  return esDemo() ? (NOTAS_DEMO[patientId] || []) : [];
 };
 
 export const savePatientNote = (patientId, note) => {
@@ -163,7 +136,7 @@ export const getPatientInformes = (patientId) => {
     const raw = localStorage.getItem(getScopedKey(`informes_${patientId}`));
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return [];
+  return esDemo() ? (INFORMES_DEMO[patientId] || []) : [];
 };
 
 export const savePatientInforme = (patientId, informe) => {
@@ -192,7 +165,7 @@ export const getPatientTestResults = (patientId) => {
     const raw = localStorage.getItem(getScopedKey(`tests_${patientId}`));
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return [];
+  return esDemo() ? (PRUEBAS_DEMO[patientId] || []) : [];
 };
 
 export const savePatientTestResult = (patientId, testResult) => {

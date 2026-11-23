@@ -4,6 +4,7 @@ import { addPatient } from '../../utils/storage';
 import { ConstanciaConsentimiento, BotonImprimir, AudioConsentimiento } from '../Documento';
 import { hayNube } from '../../utils/nube';
 import { cargarPortal, contestadas } from '../../utils/portal';
+import { PORTAL_DEMO } from '../../data/demo';
 import { SECCIONES_ENTREVISTA, PREGUNTAS_ENTREVISTA } from '../../data/entrevista';
 import { useRuta, vt } from '../rutas';
 import { Pantalla, Seccion, FilaEnlace, Vacio, Campo, inp, btnPri, btnSec } from '../ui';
@@ -35,8 +36,11 @@ const estadoDe = (x) => {
 
 export default function Entrevistas({ id, sub, therapist, patients = [], onCambio, onAbrirAsistente }) {
   const enNube = hayNube && therapist?.nube;
-  const portal = usePortal(enNube);
-  if (!hayNube || !enNube) return <SinConexion conectada={hayNube} />;
+  const demo = !!therapist?.isDemo;
+  const real = usePortal(enNube && !demo);
+  // En la demostración se ven dos entrevistas de ejemplo (src/data/demo.js)
+  const portal = demo ? { datos: { lista: PORTAL_DEMO }, cargando: false, error: '', cargar: () => {}, setDatos: () => {} } : real;
+  if (!demo && (!hayNube || !enNube)) return <SinConexion conectada={hayNube} />;
   if (id === 'invitar') return <Invitar portal={portal} />;
   if (id && sub === 'constancia') return <Constancia portal={portal} id={id} />;
   if (id) return <EntrevistaDetalle portal={portal} id={id} patients={patients} onCambio={onCambio} onAbrirAsistente={onAbrirAsistente} />;

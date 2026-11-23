@@ -9,11 +9,14 @@ import { guardarLocal, hayNube } from '../../utils/nube';
 import { preguntarIA, desidentificar } from '../../utils/ia';
 import { cargarPortal, entrevistaComoTexto } from '../../utils/portal';
 import { AJUSTES_INICIALES, armarSistema } from '../../data/asistente';
+import { SESIONES_DEMO, PORTAL_DEMO } from '../../data/demo';
 
 const clave = (nombre) => `oasis_clinico_${getActiveTherapist()?.id || 'anon'}_${nombre}`;
 export const leer = (nombre, def) => { try { const r = localStorage.getItem(clave(nombre)); return r ? JSON.parse(r) : def; } catch (_) { return def; } };
 export const escribir = (nombre, valor) => guardarLocal(clave(nombre), JSON.stringify(valor));
 export const fechaCorta = (iso) => new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+/** Sesiones guardadas de un caso (en la demo, si aún no hay, las de ejemplo). */
+export const sesionesDe = (caso) => leer(`sesiones_${caso}`, getActiveTherapist()?.isDemo && caso?.startsWith('exp:') ? (SESIONES_DEMO[caso.slice(4)] || []) : []);
 const nuevoId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
 // Consultantes del portal, para no volver a pedirlos en cada pantalla
@@ -24,7 +27,7 @@ export function usePortalLista(therapist) {
     if (!hayNube || !therapist?.nube) return;
     cargarPortal().then((r) => { portalCache = r.lista; setLista(r.lista); }).catch(() => {});
   }, [therapist?.nube]);
-  return lista;
+  return therapist?.isDemo ? PORTAL_DEMO : lista;
 }
 
 /** Ajustes del asistente (marco, formato, indicaciones…). Son de la terapeuta, no de un caso. */
@@ -37,13 +40,13 @@ export function useAjustesAsistente() {
 export function useCuaderno(caso, { patients = [], portal = [] } = {}) {
   const [ajustes, setAjustes] = useAjustesAsistente();
   const [docs, setDocsS] = useState(() => leer(`docs_${caso}`, []));
-  const [sesiones, setSesionesS] = useState(() => leer(`sesiones_${caso}`, []));
+  const [sesiones, setSesionesS] = useState(() => sesionesDe(caso));
   const [chat, setChatS] = useState(() => leer(`chat_${caso}`, []));
   const [elegidas, setElegidasS] = useState(() => leer(`fuentes_${caso}`, {}));
 
   useEffect(() => {
     setDocsS(leer(`docs_${caso}`, []));
-    setSesionesS(leer(`sesiones_${caso}`, []));
+    setSesionesS(sesionesDe(caso));
     setChatS(leer(`chat_${caso}`, []));
     setElegidasS(leer(`fuentes_${caso}`, {}));
   }, [caso]);

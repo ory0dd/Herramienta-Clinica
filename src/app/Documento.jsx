@@ -50,7 +50,7 @@ export function ConstanciaConsentimiento({ alias, consentimiento }) {
         </section>
       ))}
       <p className="pt-4">{CONSENTIMIENTO.firma}</p>
-      <p className="pt-6"><span className="inline-block min-w-[260px] border-b border-black/40 pb-1 font-display text-[22px]">{consentimiento.nombre_firma}</span><br /><span className="text-[12.5px] text-black/55">Nombre de quien firma</span></p>
+      <p className="pt-6"><span className="inline-block w-full max-w-[260px] border-b border-black/40 pb-1 font-display text-[22px]">{consentimiento.nombre_firma}</span><br /><span className="text-[12.5px] text-black/55">Nombre de quien firma</span></p>
     </Documento>
   );
 }

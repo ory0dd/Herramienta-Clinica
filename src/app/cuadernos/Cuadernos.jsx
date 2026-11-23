@@ -11,7 +11,7 @@ import { hayNube } from '../../utils/nube';
 import { estadoIA, transcribirAudio, preguntarIA } from '../../utils/ia';
 import { MARCOS, FORMATOS_NOTA, armarSistema } from '../../data/asistente';
 import { RESUMIR_SESION, NOTA_DE_SESION } from '../../data/cuaderno';
-import { useCuaderno, usePortalLista, useAjustesAsistente, leer, fechaCorta } from './useCuaderno';
+import { useCuaderno, usePortalLista, useAjustesAsistente, sesionesDe, fechaCorta } from './useCuaderno';
 
 // Estado de la conexión con Cloudflare (una sola consulta por visita)
 let estadoCache = null;
@@ -53,7 +53,7 @@ function ListaCuadernos({ patients, portal }) {
   const casos = [
     ...patients.filter((p) => p.estado !== 'Alta').map((p) => ({ caso: `exp:${p.id}`, nombre: p.nombre, codigo: p.codigo })),
     ...portal.map((x) => ({ caso: `pt:${x.id}`, nombre: x.alias, codigo: `@${x.usuario}` })),
-  ].map((c) => ({ ...c, sesiones: leer(`sesiones_${c.caso}`, []) }));
+  ].map((c) => ({ ...c, sesiones: sesionesDe(c.caso) }));
 
   return (
     <Pantalla grande titulo="Cuadernos" acciones={<Icono icono={Settings2} etiqueta="Directrices" onClick={() => navegar(['cuadernos', 'directrices'])} />}>
