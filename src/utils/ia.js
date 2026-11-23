@@ -4,13 +4,18 @@
  * El navegador nunca tiene las llaves de Cloudflare.
  */
 import { nube, hayNube } from './nube';
+import { getActiveTherapist } from './storage';
+
+// En la app publicada (con base de datos), "Iniciar sin cuenta" usa la cuenta de ejemplo: el asistente va por la ruta de la demostración
+const enDemo = () => hayNube && !!getActiveTherapist()?.isDemo;
 
 /** ¿Hay servidor y está conectado a Cloudflare? */
 export async function estadoIA() {
   try {
     const r = await fetch('/api/ia/estado', { cache: 'no-store' });
     const j = await r.json();
-    return { servidor: true, ...j };
+    // En la demostración solo cuenta como conectado si el servidor la permite (IA_DEMO=si)
+    return { servidor: true, ...j, conectada: enDemo() ? !!(j.conectada && j.demo) : j.conectada };
   } catch (_) {
     return { servidor: false, conectada: false, acceso: 'ninguno' };
   }
@@ -25,7 +30,7 @@ export async function preguntarIA({ sistema, mensajes, clave }) {
   if (clave) cabeceras['x-clave-asistente'] = clave;
   let r;
   try {
-    r = await fetch('/api/ia', { method: 'POST', headers: cabeceras, body: JSON.stringify({ sistema, mensajes }) });
+    r = await fetch(enDemo() ? '/api/ia/demo' : '/api/ia', { method: 'POST', headers: cabeceras, body: JSON.stringify({ sistema, mensajes }) });
   } catch (_) {
     throw new Error('No se pudo conectar con el servidor del asistente.');
   }
@@ -65,6 +70,7 @@ export function claveGuardada() {
 
 /** Manda un audio al servidor y regresa su transcripción. */
 export async function transcribirAudio(archivo, clave = claveGuardada()) {
+  if (enDemo()) throw new Error('En la demostración no se transcriben audios. Usa "Texto" y pega lo que quieras.');
   if (archivo.size > 25 * 1024 * 1024) throw new Error('El audio pesa más de 25 MB. Divídelo en partes más cortas.');
   const cabeceras = { 'Content-Type': archivo.type || 'application/octet-stream' };
   if (hayNube) {

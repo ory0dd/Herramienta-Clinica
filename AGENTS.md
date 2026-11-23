@@ -60,6 +60,7 @@ Pasos 6 de la guía: **New Project → Deploy from GitHub repo**, elegir **su** 
 ### 5. Asistente de IA con Cloudflare (opcional)
 Paso 7 de la guía: Account ID y token con la plantilla **Workers AI**. Esos dos datos los pega la persona directo en **Variables** de Railway (`CF_ACCOUNT_ID`, `CF_API_TOKEN`) y da **Deploy**. Si quiere probarlo en su computadora, que los escriba ella en su `.env`.
 Para comprobar: en **Cuadernos**, junto al nombre de un caso debe salir el punto verde.
+Si quiere enseñar la app, puede agregar `IA_DEMO=si` para que la demostración ("Iniciar sin cuenta") use el asistente con límites (20 por hora por persona y 150 al día).
 
 ### 6. Invitar consultantes
 Paso 9 de la guía: en **Entrevistas → Invitar** copiar el mensaje con el link y mandarlo. No hay código: cualquiera con el link puede crear su cuenta de consultante, y solo la terapeuta (administradora) ve a todos. Que haga una prueba desde otro navegador o su celular, eligiendo **Consultante**.

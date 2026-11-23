@@ -90,7 +90,11 @@ Con Cloudflare Workers AI funcionan tres cosas: los **Cuadernos** de cada caso, 
 4. En Railway, en **Variables**, agrega:
    - `CF_ACCOUNT_ID` = tu Account ID
    - `CF_API_TOKEN` = tu token
-5. Da **Deploy**. Abre cualquier cuaderno en **Cuadernos**: junto al nombre debe decir "Asistente conectado".
+5. Da **Deploy**. Abre cualquier cuaderno en **Cuadernos**: junto al nombre debe salir un punto verde (asistente conectado).
+6. **Opcional, para enseñar la app:** agrega también `IA_DEMO` = `si`. Así quien entre con **Iniciar sin cuenta** puede probar el asistente con los casos de ejemplo.
+   - Tiene límites para cuidar tu cuenta de Cloudflare: 20 preguntas por hora por persona y 150 al día entre todas las visitas. Puedes cambiar el máximo diario con `IA_DEMO_DIARIO`.
+   - En la demostración no se transcriben audios.
+   - Si no pones esta variable, la demostración solo deja copiar el prompt.
 
 > Aunque se quitan nombres, teléfonos y correos antes de enviar, el texto sí sale hacia Cloudflare. Escribe tus apuntes con códigos y sin datos que identifiquen a la persona.
 

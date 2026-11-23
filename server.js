@@ -9,6 +9,8 @@
 //   CF_MODELO_AUDIO (opcional)    → modelo para transcribir audio (Whisper).
 //   VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY → para comprobar que quien pregunta es un terapeuta autorizado.
 //   IA_CLAVE_ACCESO (opcional)    → si NO usas Supabase, una clave que se pide para usar el asistente.
+//   IA_DEMO=si (opcional)         → deja probar el asistente en la demostración ("Iniciar sin cuenta"), con límites.
+//   IA_DEMO_DIARIO (opcional)     → máximo de preguntas al día de la demostración, entre todas las visitas (150 si no se pone).
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
@@ -25,6 +27,8 @@ const CF_BASE = process.env.CF_API_BASE || 'https://api.cloudflare.com/client/v4
 const SB_URL = process.env.VITE_SUPABASE_URL;
 const SB_LLAVE = process.env.VITE_SUPABASE_ANON_KEY;
 const CLAVE_ACCESO = process.env.IA_CLAVE_ACCESO;
+const IA_DEMO = process.env.IA_DEMO === 'si';
+const DEMO_DIARIO = Number(process.env.IA_DEMO_DIARIO) || 150;
 
 const iaConectada = () => !!(CF_CUENTA && CF_TOKEN);
 const modoAcceso = () => (SB_URL && SB_LLAVE ? 'supabase' : CLAVE_ACCESO ? 'clave' : 'ninguno');
@@ -102,12 +106,44 @@ async function asistente(req, res) {
     .map((m) => ({ role: m.role, content: m.content.slice(0, 20000) }));
   if (!mensajes.length || mensajes[mensajes.length - 1].role !== 'user') return responder(res, 400, { error: 'Falta tu pregunta.' });
   const sistema = typeof pedido.sistema === 'string' ? pedido.sistema.slice(0, 60000) : '';
+  return preguntarCloudflare(res, sistema, mensajes, 1500);
+}
 
+// Demostración ("Iniciar sin cuenta"): sin sesión, pero con límites para que nadie gaste tu cuenta de Cloudflare.
+// Solo funciona si pones IA_DEMO=si. Los casos de la demo son inventados.
+const demoPorIp = new Map();
+let demoHoy = { dia: '', n: 0 };
+async function asistenteDemo(req, res) {
+  if (!iaConectada()) return responder(res, 503, { error: 'El asistente no está conectado: faltan las variables de Cloudflare en el servidor.' });
+  if (!IA_DEMO) return responder(res, 403, { error: 'El asistente no está disponible en la demostración.' });
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
+  const ahora = Date.now();
+  const recientes = (demoPorIp.get(ip) || []).filter((t) => ahora - t < 3600000);
+  if (recientes.length >= 20) return responder(res, 429, { error: 'Ya hiciste muchas preguntas en la demostración. Intenta en una hora.' });
+  const dia = new Date().toISOString().slice(0, 10);
+  if (demoHoy.dia !== dia) demoHoy = { dia, n: 0 };
+  if (demoHoy.n >= DEMO_DIARIO) return responder(res, 429, { error: 'La demostración del asistente llegó a su límite de hoy. Intenta mañana.' });
+  recientes.push(ahora);
+  demoPorIp.set(ip, recientes);
+  demoHoy.n += 1;
+
+  let pedido;
+  try { pedido = JSON.parse(await leerCuerpo(req, 60000)); } catch (_) { return responder(res, 400, { error: 'La pregunta es demasiado larga o no se pudo leer.' }); }
+  const mensajes = (Array.isArray(pedido.mensajes) ? pedido.mensajes : [])
+    .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-6)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, 3000) }));
+  if (!mensajes.length || mensajes[mensajes.length - 1].role !== 'user') return responder(res, 400, { error: 'Falta tu pregunta.' });
+  const sistema = typeof pedido.sistema === 'string' ? pedido.sistema.slice(0, 20000) : '';
+  return preguntarCloudflare(res, sistema, mensajes, 900);
+}
+
+async function preguntarCloudflare(res, sistema, mensajes, maxTokens) {
   try {
     const r = await fetch(`${CF_BASE}/accounts/${CF_CUENTA}/ai/run/${CF_MODELO}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${CF_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: [{ role: 'system', content: sistema }, ...mensajes], max_tokens: 1500, temperature: 0.4 }),
+      body: JSON.stringify({ messages: [{ role: 'system', content: sistema }, ...mensajes], max_tokens: maxTokens, temperature: 0.4 }),
     });
     const datos = await r.json().catch(() => ({}));
     if (!r.ok || datos.success === false) {
@@ -177,9 +213,10 @@ async function archivo(req, res) {
 const servidor = http.createServer((req, res) => {
   const ruta = new URL(req.url, 'http://x').pathname;
   if (ruta === '/api/ia/estado' && req.method === 'GET') {
-    return responder(res, 200, { conectada: iaConectada(), modelo: iaConectada() ? CF_MODELO : null, acceso: modoAcceso() });
+    return responder(res, 200, { conectada: iaConectada(), modelo: iaConectada() ? CF_MODELO : null, acceso: modoAcceso(), demo: iaConectada() && IA_DEMO });
   }
   if (ruta === '/api/ia' && req.method === 'POST') return asistente(req, res);
+  if (ruta === '/api/ia/demo' && req.method === 'POST') return asistenteDemo(req, res);
   if (ruta === '/api/transcribir' && req.method === 'POST') return transcribir(req, res);
   if (ruta.startsWith('/api/')) return responder(res, 404, { error: 'Ruta no encontrada.' });
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405, CABECERAS); return res.end(); }
@@ -187,5 +224,5 @@ const servidor = http.createServer((req, res) => {
 });
 
 servidor.listen(PUERTO, '0.0.0.0', () => {
-  console.log(`Consultorio en el puerto ${PUERTO} · asistente ${iaConectada() ? `conectado (${CF_MODELO})` : 'sin conectar'} · acceso: ${modoAcceso()}`);
+  console.log(`Consultorio en el puerto ${PUERTO} · asistente ${iaConectada() ? `conectado (${CF_MODELO})` : 'sin conectar'} · acceso: ${modoAcceso()} · demo: ${IA_DEMO ? 'sí' : 'no'}`);
 });
